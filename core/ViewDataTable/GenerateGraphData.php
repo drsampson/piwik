@@ -53,12 +53,14 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
     public function init($currentControllerName,
                            $currentControllerAction,
                            $apiMethodToRequestDataTable,
-                           $controllerActionCalledWhenRequestSubTable = null)
+                           $controllerActionCalledWhenRequestSubTable = null,
+                           $defaultProperties = array())
     {
         parent::init($currentControllerName,
                      $currentControllerAction,
                      $apiMethodToRequestDataTable,
-                     $controllerActionCalledWhenRequestSubTable);
+                     $controllerActionCalledWhenRequestSubTable,
+                     $defaultProperties);
         
         // do not sort if sorted column was initially "label" or eg. it would make "Visits by Server time" not pretty
         if ($this->getSortedColumn() != 'label') {

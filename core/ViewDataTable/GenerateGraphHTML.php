@@ -49,10 +49,11 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
     public function init($currentControllerName,
                          $currentControllerAction,
                          $apiMethodToRequestDataTable,
-                         $controllerActionCalledWhenRequestSubTable = null)
+                         $controllerActionCalledWhenRequestSubTable = null,
+                         $defaultProperties = array())
     {
         parent::init($currentControllerName, $currentControllerAction, $apiMethodToRequestDataTable,
-                     $controllerActionCalledWhenRequestSubTable);
+                     $controllerActionCalledWhenRequestSubTable, $defaultProperties);
         
         $this->parametersToModify = array(
             'viewDataTable' => $this->getViewDataTableIdToLoad(),

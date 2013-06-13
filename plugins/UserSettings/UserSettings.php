@@ -196,6 +196,11 @@ class Piwik_UserSettings extends Piwik_Plugin
             'UserSettings.getBrowserVersion' => Piwik_Translate('UserSettings_ColumnBrowserVersion')
         );
         
+        $wideScreenDeviceTypeRelatedReports = array(
+            'UserSettings.getMobileVsDesktop' => Piwik_Translate('UserSettings_MobileVsDesktop'),
+            'UserSettings.getWideScreen' => Piwik_Translate('UserSettings_ColumnTypeOfScreen')
+        );
+        
         $reportViewProperties = array(
             'UserSettings.getResolution' => array_merge($basicUserSettingsProperties, array(
                 'translations' => array('label' => Piwik_Translate('UserSettings_ColumnResolution'))
@@ -231,6 +236,54 @@ class Piwik_UserSettings extends Piwik_Plugin
                 'title'          => Piwik_Translate('UserSettings_Browsers'),
                 'relatedReports' => $browserRelatedReports
             )),
+            
+            'UserSettings.getBrowserType' => array_merge($basicUserSettingsProperties, array(
+                'translations'            => array('label' => Piwik_Translate('UserSettings_ColumnBrowserFamily')),
+                'show_offset_information' => false,
+                'show_pagination_control' => false,
+                'default_view_type'       => 'graphPie',
+            )),
+            
+            'UserSettings.getWideScreen'  => array_merge($basicUserSettingsProperties, array(
+                'translations'            => array('label' => Piwik_Translate('UserSettings_ColumnTypeOfScreen')),
+                'show_offset_information' => false,
+                'show_pagination_control' => false,
+                'title'                   => Piwik_Translate('UserSettings_ColumnTypeOfScreen'),
+                'relatedReports'          => $wideScreenDeviceTypeRelatedReports
+            )),
+            
+            'UserSettings.getMobileVsDesktop' => array_merge($basicUserSettingsProperties, array(
+                'translations'            => array('label' => Piwik_Translate('UserSettings_MobileVsDesktop')),
+                'title'                   => Piwik_Translate('UserSettings_MobileVsDesktop'),
+                'relatedReports'          => $wideScreenDeviceTypeRelatedReports
+            )),
+            
+            'UserSettings.getPlugin' => array_merge($basicUserSettingsProperties, array(
+                'translations'             => array(
+                    'label'                => Piwik_Translate('UserSettings_ColumnPlugin'),
+                    'nb_visits_percentage' =>
+                        str_replace(' ', '&nbsp;', Piwik_Translate('General_ColumnPercentageVisits'))
+                ),
+                'show_offset_information'  => false,
+                'show_pagination_control'  => false,
+                'show_all_views_icons'     => false,
+                'show_table_all_columns'   => false,
+                'columns_to_display'       => array('label', 'nb_visits_percentage', 'nb_visits'),
+                'filter_sort_column'       => 'nb_visits_percentage',
+                'filter_sort_order'        => 'desc',
+                'filter_limit'             => 10,
+                'show_footer_message'      => Piwik_Translate('UserSettings_PluginDetectionDoesNotWorkInIE'),
+            )),
+            
+            'UserSettings.getLanguage' => array(
+                'translations'  => array('label' => Piwik_Translate('General_Language')),
+                'filter_sort_column'          => 'nb_visits',
+                'filter_sort_order'           => 'desc',
+                'show_search'                 => false,
+                'filter_limit'                => false,
+                'columns_to_display'          => array('label', 'nb_visits'),
+                'show_exclude_low_population' => false,
+            ),
         );
         
         $properties = &$notification->getNotificationObject();

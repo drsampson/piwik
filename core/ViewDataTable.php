@@ -223,9 +223,17 @@ abstract class Piwik_ViewDataTable
      *
      * @param string $defaultType Any of these: table, cloud, graphPie, graphVerticalBar, graphEvolution, sparkline, generateDataChart*
      * @return Piwik_ViewDataTable
+     * TODO: reverse order of parameters
      */
     static public function factory($defaultType = null, $action = false)
-    {// TODO: make defaultType configurable...
+    {
+        if ($action !== false) {
+            $defaultProperties = self::getDefaultPropertiesForReport($action);
+            if (isset($defaultProperties['default_view_type'])) {
+                $defaultType = $defaultProperties['default_view_type'];
+            }
+        }
+        
         if ($defaultType === null) {
             $defaultType = 'table';
         }
@@ -280,7 +288,7 @@ abstract class Piwik_ViewDataTable
         
         if ($action !== false) {
             list($plugin, $controllerAction) = explode('.', $action);
-            $result->init($plugin, $controllerAction, $action, $subtableId = null);
+            $result->init($plugin, $controllerAction, $action, $subtableId = null, $defaultProperties);
         }
         
         return $result;
@@ -379,14 +387,14 @@ abstract class Piwik_ViewDataTable
     public function init($currentControllerName,
                          $currentControllerAction,
                          $apiMethodToRequestDataTable,
-                         $controllerActionCalledWhenRequestSubTable = null)
+                         $controllerActionCalledWhenRequestSubTable = null,
+                         $defaultProperties = array())
     {
         $this->currentControllerName = $currentControllerName;
         $this->currentControllerAction = $currentControllerAction;
         $this->controllerActionCalledWhenRequestSubTable = $controllerActionCalledWhenRequestSubTable;
         $this->idSubtable = Piwik_Common::getRequestVar('idSubtable', false, 'int');
         
-        $defaultProperties = $this->getDefaultPropertiesForReport($apiMethodToRequestDataTable);
         foreach ($defaultProperties as $name => $value) {
             $this->setViewProperty($name, $value);
         }
@@ -407,7 +415,7 @@ abstract class Piwik_ViewDataTable
     /**
      * TODO
      */
-    private function getDefaultPropertiesForReport($apiAction)
+    private static function getDefaultPropertiesForReport($apiAction)
     {
         $properties = array();
         Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', $properties, $apiAction);
