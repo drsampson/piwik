@@ -115,12 +115,6 @@ abstract class Piwik_ViewDataTable
     protected $controllerActionCalledWhenRequestSubTable = null;
 
     /**
-     * @see init()
-     * @var string
-     */
-    protected $apiMethodToRequestDataTable;
-
-    /**
      * This view should be an implementation of the Interface Piwik_View_Interface
      * The $view object should be created in the main() method.
      *
@@ -383,7 +377,6 @@ abstract class Piwik_ViewDataTable
     {
         $this->currentControllerName = $currentControllerName;
         $this->currentControllerAction = $currentControllerAction;
-        $this->apiMethodToRequestDataTable = $apiMethodToRequestDataTable; // TODO: remove & use viewProperties[...
         $this->controllerActionCalledWhenRequestSubTable = $controllerActionCalledWhenRequestSubTable;
         $this->idSubtable = Piwik_Common::getRequestVar('idSubtable', false, 'int');
         
@@ -400,7 +393,7 @@ abstract class Piwik_ViewDataTable
         }
         
         $this->viewProperties['show_footer_icons'] = ($this->idSubtable == false);
-        $this->viewProperties['apiMethodToRequestDataTable'] = $this->apiMethodToRequestDataTable;
+        $this->viewProperties['apiMethodToRequestDataTable'] = $apiMethodToRequestDataTable;
         $this->viewProperties['uniqueId'] = $this->getUniqueIdViewDataTable();
         $this->viewProperties['self_url'] = $this->getBaseReportUrl($currentControllerName, $currentControllerAction);
     }
@@ -457,7 +450,7 @@ abstract class Piwik_ViewDataTable
 
     public function getApiMethodToRequestDataTable()
     {
-        return $this->apiMethodToRequestDataTable;
+        return $this->viewProperties['apiMethodToRequestDataTable'];
     }
 
     public function getControllerActionCalledWhenRequestSubTable()
@@ -646,7 +639,7 @@ abstract class Piwik_ViewDataTable
         // we setup the method and format variable
         // - we request the method to call to get this specific DataTable
         // - the format = original specifies that we want to get the original DataTable structure itself, not rendered
-        $requestString = 'method=' . $this->apiMethodToRequestDataTable;
+        $requestString = 'method=' . $this->viewProperties['apiMethodToRequestDataTable'];
         $requestString .= '&format=original';
         $requestString .= '&disable_generic_filters=' . Piwik_Common::getRequestVar('disable_generic_filters', 1, 'int');
 
