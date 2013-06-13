@@ -15,7 +15,7 @@
  */
 class Piwik_UserSettings_Controller extends Piwik_Controller
 {
-    function index()
+    public function index()
     {
         $view = Piwik_View::factory('index');
 
@@ -29,20 +29,5 @@ class Piwik_UserSettings_Controller extends Piwik_Controller
         $view->dataTableBrowserLanguage = $this->getLanguage(true);
 
         echo $view->render();
-    }
-    
-    /**
-     * TODO
-     */
-    public function __call($action, $args)
-    {
-        if (!method_exists(Piwik_UserSettings_API::getInstance(), $action)) {
-            throw new Exception("Invalid action name '$action' for 'UserSettings' plugin.");
-        }
-        
-        $fetch = reset($args);
-        
-        $view = Piwik_ViewDataTable::factory(null, "UserSettings.$action");
-        return $this->renderView($view, $fetch);
     }
 }
