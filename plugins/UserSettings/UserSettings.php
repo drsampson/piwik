@@ -181,14 +181,56 @@ class Piwik_UserSettings extends Piwik_Plugin
      */
     public function getReportDisplayProperties($notification)
     {
+        $basicUserSettingsProperties = array('show_search'                 => false,
+                                             'show_exclude_low_population' => false,
+                                             'filter_limit'                => 5,
+                                             'graph_limit'                 => 5);
+        
+        $osRelatedReports = array(
+            'UserSettings.getOSFamily' => Piwik_Translate('UserSettings_OperatingSystemFamily'),
+            'UserSettings.getOS'       => Piwik_Translate('UserSettings_OperatingSystems')
+        );
+        
+        $browserRelatedReports = array(
+            'UserSettings.getBrowser' => Piwik_Translate('UserSettings_Browsers'),
+            'UserSettings.getBrowserVersion' => Piwik_Translate('UserSettings_ColumnBrowserVersion')
+        );
+        
         $reportViewProperties = array(
-            'UserSettings.getResolution' => array('show_search' => false,
-                                                  'show_exclude_low_population' => false,
-                                                  'filter_limit' => 5,
-                                                  'graph_limit' => 5,
-                                                  'translations' => array(
-                                                      'label' => Piwik_Translate('UserSettings_ColumnResolution')
-                                                   ))
+            'UserSettings.getResolution' => array_merge($basicUserSettingsProperties, array(
+                'translations' => array('label' => Piwik_Translate('UserSettings_ColumnResolution'))
+            )),
+            
+            'UserSettings.getConfiguration' => array_merge($basicUserSettingsProperties, array(
+                'filter_limit' => 3,
+                'translations' => array('label' => Piwik_Translate('UserSettings_ColumnConfiguration'))
+            )),
+            
+            'UserSettings.getOS' => array_merge($basicUserSettingsProperties, array(
+                'translations'   => array('label' => Piwik_Translate('UserSettings_ColumnOperatingSystem')),
+                'title'          => Piwik_Translate('UserSettings_OperatingSystems'),
+                'relatedReports' => $osRelatedReports
+            )),
+            
+            'UserSettings.getOSFamily' => array_merge($basicUserSettingsProperties, array(
+                'translations'   => array('label' => Piwik_Translate('UserSettings_OperatingSystemFamily')),
+                'title'          => Piwik_Translate('UserSettings_OperatingSystemFamily'),
+                'relatedReports' => $osRelatedReports
+            )),
+            
+            'UserSettings.getBrowserVersion' => array_merge($basicUserSettingsProperties, array(
+                'translations'   => array('label' => Piwik_Translate('UserSettings_ColumnBrowserVersion')),
+                'graph_limit'    => 7,
+                'title'          => Piwik_Translate('UserSettings_ColumnBrowserVersion'),
+                'relatedReports' => $browserRelatedReports
+            )),
+            
+            'UserSettings.getBrowser' => array_merge($basicUserSettingsProperties, array(
+                'translations'   => array('label' => Piwik_Translate('UserSettings_ColumnBrowser')),
+                'graph_limit'    => 7,
+                'title'          => Piwik_Translate('UserSettings_Browsers'),
+                'relatedReports' => $browserRelatedReports
+            )),
         );
         
         $properties = &$notification->getNotificationObject();

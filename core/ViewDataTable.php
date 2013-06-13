@@ -225,7 +225,7 @@ abstract class Piwik_ViewDataTable
      * @return Piwik_ViewDataTable
      */
     static public function factory($defaultType = null, $action = false)
-    {
+    {// TODO: make defaultType configurable...
         if ($defaultType === null) {
             $defaultType = 'table';
         }
@@ -347,6 +347,12 @@ abstract class Piwik_ViewDataTable
         
         if ($name == 'translations') {
             $this->viewProperties[$name] = array_merge($this->viewProperties[$name], $value);
+        } else if ($name == 'relatedReports') {
+            // TODO: shouldn't need this code
+            foreach ($value as $report => $title) {
+                list($module, $action) = explode('.', $report);
+                $this->addRelatedReport($module, $action, $title);
+            }
         } else {
             $this->viewProperties[$name] = $value;
         }

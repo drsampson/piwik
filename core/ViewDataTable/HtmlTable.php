@@ -38,7 +38,11 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
     {
         parent::__construct();
         $this->dataTableTemplate = 'CoreHome/templates/datatable.tpl';
+        
         $this->viewProperties['enable_sort'] = '1';
+        $this->viewProperties['disable_row_evolution'] = false;
+        $this->viewProperties['disable_row_actions'] = false;
+        
         $this->setSortedColumn('nb_visits', 'desc');
         $this->setLimit(Piwik_Config::getInstance()->General['datatable_default_limit']);
         $this->handleLowPopulation();

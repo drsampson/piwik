@@ -15,18 +15,6 @@
  */
 class Piwik_UserSettings_Controller extends Piwik_Controller
 {
-    /** The set of related reports displayed under the 'Operating Systems' header. */
-    private $osRelatedReports = null;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->osRelatedReports = array(
-            'UserSettings.getOSFamily' => Piwik_Translate('UserSettings_OperatingSystemFamily'),
-            'UserSettings.getOS'       => Piwik_Translate('UserSettings_OperatingSystems')
-        );
-    }
-
     function index()
     {
         $view = Piwik_View::factory('index');
@@ -54,69 +42,7 @@ class Piwik_UserSettings_Controller extends Piwik_Controller
         
         $fetch = reset($args);
         
-        $view = Piwik_ViewDataTable::factory(null, 'UserSettings.getResolution');
-        return $this->renderView($view, $fetch);
-    }
-
-    function getConfiguration($fetch = false)
-    {
-        $view = $this->getStandardDataTableUserSettings(
-            __FUNCTION__,
-            'UserSettings.getConfiguration'
-        );
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_ColumnConfiguration'));
-        $view->setLimit(3);
-        return $this->renderView($view, $fetch);
-    }
-
-    function getOS($fetch = false)
-    {
-        $view = $this->getStandardDataTableUserSettings(
-            __FUNCTION__,
-            'UserSettings.getOS'
-        );
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_ColumnOperatingSystem'));
-        $view->addRelatedReports(Piwik_Translate('UserSettings_OperatingSystems'), $this->osRelatedReports);
-        return $this->renderView($view, $fetch);
-    }
-
-    /**
-     * Returns or echos a report displaying the number of visits by operating system family.
-     */
-    public function getOSFamily($fetch = false)
-    {
-        $view = $this->getStandardDataTableUserSettings(__FUNCTION__, 'UserSettings.getOSFamily');
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_OperatingSystemFamily'));
-        $view->addRelatedReports(Piwik_Translate('UserSettings_OperatingSystemFamily'), $this->osRelatedReports);
-        return $this->renderView($view, $fetch);
-    }
-
-    function getBrowserVersion($fetch = false)
-    {
-        $view = $this->getStandardDataTableUserSettings(
-            __FUNCTION__,
-            'UserSettings.getBrowserVersion'
-        );
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_ColumnBrowserVersion'));
-        $view->setGraphLimit(7);
-        $view->addRelatedReports(Piwik_Translate('UserSettings_ColumnBrowserVersion'), array(
-                                                                                            'UserSettings.getBrowser' => Piwik_Translate('UserSettings_Browsers')
-                                                                                       ));
-        return $this->renderView($view, $fetch);
-    }
-
-    /**
-     * Returns or echos a report displaying the number of visits by browser type. The browser
-     * version is not included in this report.
-     */
-    public function getBrowser($fetch = false)
-    {
-        $view = $this->getStandardDataTableUserSettings(__FUNCTION__, 'UserSettings.getBrowser');
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_ColumnBrowser'));
-        $view->setGraphLimit(7);
-        $view->addRelatedReports(Piwik_Translate('UserSettings_Browsers'), array(
-                                                                                'UserSettings.getBrowserVersion' => Piwik_Translate('UserSettings_ColumnBrowserVersion')
-                                                                           ));
+        $view = Piwik_ViewDataTable::factory(null, "UserSettings.$action");
         return $this->renderView($view, $fetch);
     }
 
