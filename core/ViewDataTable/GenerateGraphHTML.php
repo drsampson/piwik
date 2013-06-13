@@ -30,31 +30,30 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
      * @var array
      */
     protected $generateGraphDataParams = array();
-
+    
     /**
-     * @see Piwik_ViewDataTable::init()
-     * @param string $currentControllerName
-     * @param string $currentControllerAction
-     * @param string $apiMethodToRequestDataTable
-     * @param null $controllerActionCalledWhenRequestSubTable
+     * TODO
      */
-    function init($currentControllerName,
-                  $currentControllerAction,
-                  $apiMethodToRequestDataTable,
-                  $controllerActionCalledWhenRequestSubTable = null)
+    public function __construct()
     {
-        parent::init($currentControllerName,
-            $currentControllerAction,
-            $apiMethodToRequestDataTable,
-            $controllerActionCalledWhenRequestSubTable);
-
+        parent::__construct();
+        
         $this->dataTableTemplate = 'CoreHome/templates/graph.tpl';
 
         $this->disableOffsetInformationAndPaginationControls();
         $this->disableExcludeLowPopulation();
         $this->disableSearchBox();
         $this->enableShowExportAsImageIcon();
-
+    }
+    
+    public function init($currentControllerName,
+                         $currentControllerAction,
+                         $apiMethodToRequestDataTable,
+                         $controllerActionCalledWhenRequestSubTable = null)
+    {
+        parent::init($currentControllerName, $currentControllerAction, $apiMethodToRequestDataTable,
+                     $controllerActionCalledWhenRequestSubTable);
+        
         $this->parametersToModify = array(
             'viewDataTable' => $this->getViewDataTableIdToLoad(),
             // in the case this controller is being executed by another controller
@@ -144,8 +143,12 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
         }
 
         // collect data
+        $variablesDefault = array(); // TODO: should remove this bit of code
+        foreach ($this->getJavaScriptProperties() as $name) {
+            $variablesDefault[$name] = $this->viewProperties[$name];
+        }
         $this->parametersToModify['action'] = $this->currentControllerAction;
-        $this->parametersToModify = array_merge($this->variablesDefault, $this->parametersToModify);
+        $this->parametersToModify = array_merge($variablesDefault, $this->parametersToModify);
         $this->graphData = $this->getGraphData();
 
         // build view

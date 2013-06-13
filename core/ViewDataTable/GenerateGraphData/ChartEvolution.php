@@ -37,6 +37,8 @@ class Piwik_ViewDataTable_GenerateGraphData_ChartEvolution extends Piwik_ViewDat
 
     function __construct()
     {
+        parent::__construct();
+        
         $this->view = new Piwik_Visualization_Chart_Evolution();
     }
 

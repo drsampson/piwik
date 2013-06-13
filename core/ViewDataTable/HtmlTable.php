@@ -33,25 +33,12 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
      * @var array
      */
     public $arrayDataTable; // phpArray
-
-    /**
-     * @see Piwik_ViewDataTable::init()
-     * @param string $currentControllerName
-     * @param string $currentControllerAction
-     * @param string $apiMethodToRequestDataTable
-     * @param null|string $controllerActionCalledWhenRequestSubTable
-     */
-    function init($currentControllerName,
-                  $currentControllerAction,
-                  $apiMethodToRequestDataTable,
-                  $controllerActionCalledWhenRequestSubTable = null)
+    
+    public function __construct()
     {
-        parent::init($currentControllerName,
-            $currentControllerAction,
-            $apiMethodToRequestDataTable,
-            $controllerActionCalledWhenRequestSubTable);
+        parent::__construct();
         $this->dataTableTemplate = 'CoreHome/templates/datatable.tpl';
-        $this->variablesDefault['enable_sort'] = '1';
+        $this->viewProperties['enable_sort'] = '1';
         $this->setSortedColumn('nb_visits', 'desc');
         $this->setLimit(Piwik_Config::getInstance()->General['datatable_default_limit']);
         $this->handleLowPopulation();
@@ -175,7 +162,7 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
      */
     public function setSearchRecursive()
     {
-        $this->variablesDefault['search_recursive'] = true;
+        $this->viewProperties['search_recursive'] = true;
         return $this->setRecursiveLoadDataTableIfSearchingForPattern();
     }
 
@@ -216,7 +203,7 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
      */
     public function disableRowEvolution()
     {
-        $this->variablesDefault['disable_row_evolution'] = true;
+        $this->viewProperties['disable_row_evolution'] = true;
     }
 
     /**
@@ -224,7 +211,7 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
      */
     public function disableRowActions()
     {
-        $this->variablesDefault['disable_row_actions'] = true;
+        $this->viewProperties['disable_row_actions'] = true;
     }
 
 }

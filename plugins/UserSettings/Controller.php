@@ -42,14 +42,19 @@ class Piwik_UserSettings_Controller extends Piwik_Controller
 
         echo $view->render();
     }
-
-    function getResolution($fetch = false)
+    
+    /**
+     * TODO
+     */
+    public function __call($action, $args)
     {
-        $view = $this->getStandardDataTableUserSettings(
-            __FUNCTION__,
-            'UserSettings.getResolution'
-        );
-        $view->setColumnTranslation('label', Piwik_Translate('UserSettings_ColumnResolution'));
+        if (!method_exists(Piwik_UserSettings_API::getInstance(), $action)) {
+            throw new Exception("Invalid action name '$action' for 'UserSettings' plugin.");
+        }
+        
+        $fetch = reset($args);
+        
+        $view = Piwik_ViewDataTable::factory(null, 'UserSettings.getResolution');
         return $this->renderView($view, $fetch);
     }
 

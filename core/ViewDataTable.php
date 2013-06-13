@@ -57,13 +57,7 @@ abstract class Piwik_ViewDataTable
      */
     protected $mainAlreadyExecuted = false;
 
-    /**
-     * Contains the values set for the parameters
-     *
-     * @see getJavascriptVariablesToSet()
-     * @var array
-     */
-    protected $variablesDefault = array();
+    // TODO: external visualizations should be able to customize themselves for different API methods.
 
     /**
      * Array of properties that are available in the view (from smarty)
@@ -135,13 +129,6 @@ abstract class Piwik_ViewDataTable
     protected $view = null;
 
     /**
-     * Array of columns names translations
-     *
-     * @var array
-     */
-    protected $columnsTranslations = array();
-
-    /**
      * Documentation for the metrics used in the current report.
      * Received from the Plugin API, used for inline help.
      *
@@ -158,18 +145,65 @@ abstract class Piwik_ViewDataTable
     protected $documentation = false;
 
     /**
-     * Array of columns set to display
-     *
-     * @var array
-     */
-    protected $columnsToDisplay = array();
-
-    /**
      * Variable that is used as the DIV ID in the rendered HTML
      *
      * @var string
      */
     protected $uniqIdTable = null;
+    
+    /**
+     * TODO
+     */
+    public function __construct()
+    {
+        $this->viewProperties['show_goals'] = false;
+        $this->viewProperties['show_ecommerce'] = false;
+        $this->viewProperties['show_search'] = true;
+        $this->viewProperties['show_table'] = true;
+        $this->viewProperties['show_table_all_columns'] = true;
+        $this->viewProperties['show_all_views_icons'] = true;
+        $this->viewProperties['hide_all_views_icons'] = false;
+        $this->viewProperties['hide_annotations_view'] = true;
+        $this->viewProperties['show_bar_chart'] = true;
+        $this->viewProperties['show_pie_chart'] = true;
+        $this->viewProperties['show_tag_cloud'] = true;
+        $this->viewProperties['show_export_as_image_icon'] = false;
+        $this->viewProperties['show_export_as_rss_feed'] = true;
+        $this->viewProperties['show_exclude_low_population'] = true;
+        $this->viewProperties['show_offset_information'] = true;
+        $this->viewProperties['show_pagination_control'] = true;
+        $this->viewProperties['show_limit_control'] = false;
+        $this->viewProperties['show_footer'] = true;
+        $this->viewProperties['show_related_reports'] = true;
+        $this->viewProperties['exportLimit'] = Piwik_Config::getInstance()->General['API_datatable_default_limit'];
+        $this->viewProperties['highlight_summary_row'] = false;
+        $this->viewProperties['metadata'] = array();
+        $this->viewProperties['relatedReports'] = array();
+        $this->viewProperties['title'] = 'unknown';
+        $this->viewProperties['tooltip_metadata_name'] = false;
+        $this->viewProperties['enable_sort'] = true;
+        $this->viewProperties['disable_generic_filters'] = false;
+        $this->viewProperties['disable_queued_filters'] = false;
+        $this->viewProperties['keep_summary_row'] = true;
+        $this->viewProperties['filter_excludelowpop'] = false; // TODO: need to test this & below
+        $this->viewProperties['filter_excludelowpop_value'] = false;
+        $this->viewProperties['filter_pattern'] = false;
+        $this->viewProperties['filter_column'] = false;
+        $this->viewProperties['filter_limit'] = false;
+        $this->viewProperties['filter_sort_column'] = false;
+        $this->viewProperties['filter_sort_order'] = false;
+        $this->viewProperties['translations'] = array_merge(
+            Piwik_API_API::getInstance()->getDefaultMetrics(),
+            Piwik_API_API::getInstance()->getDefaultProcessedMetrics()
+        );
+        
+        $this->viewProperties['columns_to_display'] = array('label');
+        if (isset($this->period) && $this->period == 'day') {
+            $this->viewProperties['columns_to_display'][] = 'nb_uniq_visitors';
+        } else {
+            $this->viewProperties['columns_to_display'][] = 'nb_visits';
+        }
+    }
 
     /**
      * Method to be implemented by the ViewDataTable_*.
@@ -194,65 +228,133 @@ abstract class Piwik_ViewDataTable
      * If force is set to true, a ViewDataTable of the $defaultType will be returned in all cases.
      *
      * @param string $defaultType Any of these: table, cloud, graphPie, graphVerticalBar, graphEvolution, sparkline, generateDataChart*
-     * @param bool $force If set to true, returns a ViewDataTable of the $defaultType
      * @return Piwik_ViewDataTable
      */
-    static public function factory($defaultType = null, $force = false)
+    static public function factory($defaultType = null, $action = false)
     {
-        if (is_null($defaultType)) {
+        if ($defaultType === null) {
             $defaultType = 'table';
         }
 
-        if ($force === true) {
-            $type = $defaultType;
-        } else {
-            $type = Piwik_Common::getRequestVar('viewDataTable', $defaultType, 'string');
-        }
+        $type = Piwik_Common::getRequestVar('viewDataTable', $defaultType, 'string');
         switch ($type) {
             case 'cloud':
-                return new Piwik_ViewDataTable_Cloud();
+                $result = new Piwik_ViewDataTable_Cloud();
                 break;
 
             case 'graphPie':
-                return new Piwik_ViewDataTable_GenerateGraphHTML_ChartPie();
+                $result = new Piwik_ViewDataTable_GenerateGraphHTML_ChartPie();
                 break;
 
             case 'graphVerticalBar':
-                return new Piwik_ViewDataTable_GenerateGraphHTML_ChartVerticalBar();
+                $result = new Piwik_ViewDataTable_GenerateGraphHTML_ChartVerticalBar();
                 break;
 
             case 'graphEvolution':
-                return new Piwik_ViewDataTable_GenerateGraphHTML_ChartEvolution();
+                $result = new Piwik_ViewDataTable_GenerateGraphHTML_ChartEvolution();
                 break;
 
             case 'sparkline':
-                return new Piwik_ViewDataTable_Sparkline();
+                $result = new Piwik_ViewDataTable_Sparkline();
                 break;
 
             case 'generateDataChartVerticalBar':
-                return new Piwik_ViewDataTable_GenerateGraphData_ChartVerticalBar();
+                $result = new Piwik_ViewDataTable_GenerateGraphData_ChartVerticalBar();
                 break;
 
             case 'generateDataChartPie':
-                return new Piwik_ViewDataTable_GenerateGraphData_ChartPie();
+                $result = new Piwik_ViewDataTable_GenerateGraphData_ChartPie();
                 break;
 
             case 'generateDataChartEvolution':
-                return new Piwik_ViewDataTable_GenerateGraphData_ChartEvolution();
+                $result = new Piwik_ViewDataTable_GenerateGraphData_ChartEvolution();
                 break;
 
             case 'tableAllColumns':
-                return new Piwik_ViewDataTable_HtmlTable_AllColumns();
+                $result = new Piwik_ViewDataTable_HtmlTable_AllColumns();
                 break;
 
             case 'tableGoals':
-                return new Piwik_ViewDataTable_HtmlTable_Goals();
+                $result = new Piwik_ViewDataTable_HtmlTable_Goals();
                 break;
 
             case 'table':
             default:
-                return new Piwik_ViewDataTable_HtmlTable();
+                $result = new Piwik_ViewDataTable_HtmlTable();
                 break;
+        }
+        
+        if ($action !== false) {
+            list($plugin, $controllerAction) = explode('.', $action);
+            $result->init($plugin, $controllerAction, $action, $subtableId = null);
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * TODO
+     */
+    public function getOverridableProperties() // TODO: should be a property of a Visualization, I think.
+    {
+        return array(
+            'show_search',
+            'show_table',
+            'show_table_all_columns',
+            'show_all_views_icons',
+            'hide_all_views_icons',
+            'hide_annotations_view',
+            'show_barchart',
+            'show_piechart',
+            'show_tag_cloud',
+            'show_export_as_image_icon',
+            'show_export_as_rss_feed',
+            'show_exclude_low_population',
+            'show_offset_information',
+            'show_pagination_control',
+            'show_footer',
+            'show_related_reports',
+            'columns'
+        );
+    }
+    
+    /**
+     * TODO
+     * TODO: this & above function should be merged
+     */
+    public function getJavaScriptProperties()
+    {
+        return array(
+            'enable_sort',
+            'disable_generic_filters',
+            'disable_queued_filters',
+            'keep_summary_row',
+            'filter_excludelowpop',
+            'filter_excludelowpop_value',
+            'filter_pattern',
+            'filter_column',
+            'filter_limit',
+            'filter_sort_column',
+            'filter_sort_order',
+        );
+    }
+    
+    /**
+     * TODO
+     */
+    private function setViewProperty($name, $value)
+    {
+        if (isset($this->viewProperties[$name])
+            && is_array($this->viewProperties[$name])
+            && is_string($value)
+        ) {
+            $value = Piwik::getArrayFromApiParameter($value);
+        }
+        
+        if ($name == 'translations') {
+            $this->viewProperties[$name] = array_merge($this->viewProperties[$name], $value);
+        } else {
+            $this->viewProperties[$name] = $value;
         }
     }
 
@@ -281,49 +383,39 @@ abstract class Piwik_ViewDataTable
     {
         $this->currentControllerName = $currentControllerName;
         $this->currentControllerAction = $currentControllerAction;
-        $this->apiMethodToRequestDataTable = $apiMethodToRequestDataTable;
+        $this->apiMethodToRequestDataTable = $apiMethodToRequestDataTable; // TODO: remove & use viewProperties[...
         $this->controllerActionCalledWhenRequestSubTable = $controllerActionCalledWhenRequestSubTable;
         $this->idSubtable = Piwik_Common::getRequestVar('idSubtable', false, 'int');
-
-        $this->viewProperties['show_goals'] = false;
-        $this->viewProperties['show_ecommerce'] = false;
-        $this->viewProperties['show_search'] = Piwik_Common::getRequestVar('show_search', true);
-        $this->viewProperties['show_table'] = Piwik_Common::getRequestVar('show_table', true);
-        $this->viewProperties['show_table_all_columns'] = Piwik_Common::getRequestVar('show_table_all_columns', true);
-        $this->viewProperties['show_all_views_icons'] = Piwik_Common::getRequestVar('show_all_views_icons', true);
-        $this->viewProperties['hide_all_views_icons'] = Piwik_Common::getRequestVar('hide_all_views_icons', false);
-        $this->viewProperties['hide_annotations_view'] = Piwik_Common::getRequestVar('hide_annotations_view', true);
-        $this->viewProperties['show_bar_chart'] = Piwik_Common::getRequestVar('show_barchart', true);
-        $this->viewProperties['show_pie_chart'] = Piwik_Common::getRequestVar('show_piechart', true);
-        $this->viewProperties['show_tag_cloud'] = Piwik_Common::getRequestVar('show_tag_cloud', true);
-        $this->viewProperties['show_export_as_image_icon'] = Piwik_Common::getRequestVar('show_export_as_image_icon', false);
-        $this->viewProperties['show_export_as_rss_feed'] = Piwik_Common::getRequestVar('show_export_as_rss_feed', true);
-        $this->viewProperties['show_exclude_low_population'] = Piwik_Common::getRequestVar('show_exclude_low_population', true);
-        $this->viewProperties['show_offset_information'] = Piwik_Common::getRequestVar('show_offset_information', true);
-        $this->viewProperties['show_pagination_control'] = Piwik_Common::getRequestVar('show_pagination_control', true);
-        $this->viewProperties['show_limit_control'] = false;
-        $this->viewProperties['show_footer'] = Piwik_Common::getRequestVar('show_footer', true);
+        
+        $defaultProperties = $this->getDefaultPropertiesForReport($apiMethodToRequestDataTable);
+        foreach ($defaultProperties as $name => $value) {
+            $this->setViewProperty($name, $value);
+        }
+        
+        $queryParams = Piwik_Url::getArrayFromCurrentQueryString();
+        foreach ($this->getOverridableProperties() as $name) {
+            if (isset($queryParams[$name])) {
+                $this->setViewProperty($name, $queryParams[$name]);
+            }
+        }
+        
         $this->viewProperties['show_footer_icons'] = ($this->idSubtable == false);
-        $this->viewProperties['show_related_reports'] = Piwik_Common::getRequestVar('show_related_reports', true);
         $this->viewProperties['apiMethodToRequestDataTable'] = $this->apiMethodToRequestDataTable;
         $this->viewProperties['uniqueId'] = $this->getUniqueIdViewDataTable();
-        $this->viewProperties['exportLimit'] = Piwik_Config::getInstance()->General['API_datatable_default_limit'];
-
-        $this->viewProperties['highlight_summary_row'] = false;
-        $this->viewProperties['metadata'] = array();
-
-        $this->viewProperties['relatedReports'] = array();
-        $this->viewProperties['title'] = 'unknown';
         $this->viewProperties['self_url'] = $this->getBaseReportUrl($currentControllerName, $currentControllerAction);
-        $this->viewProperties['tooltip_metadata_name'] = false;
-
-        $standardColumnNameToTranslation = array_merge(
-            Piwik_API_API::getInstance()->getDefaultMetrics(),
-            Piwik_API_API::getInstance()->getDefaultProcessedMetrics()
-        );
-        $this->setColumnsTranslations($standardColumnNameToTranslation);
     }
 
+    /**
+     * TODO
+     */
+    private function getDefaultPropertiesForReport($apiAction)
+    {
+        $properties = array();
+        Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', $properties, $apiAction);
+        
+        return $properties;
+    }
+    
     /**
      * Forces the View to use a given template.
      * Usually the template to use is set in the specific ViewDataTable_*
@@ -469,8 +561,8 @@ abstract class Piwik_ViewDataTable
             $requestString = $this->getRequestString();
             $request = Piwik_API_Request::getRequestArrayFromString($requestString);
 
-            if (!empty($this->variablesDefault['enable_sort'])
-                && $this->variablesDefault['enable_sort'] === 'false'
+            if (!empty($this->viewProperties['enable_sort'])
+                && $this->viewProperties['enable_sort'] === 'false'
             ) {
                 $request['filter_sort_column'] = $request['filter_sort_order'] = '';
             }
@@ -504,8 +596,8 @@ abstract class Piwik_ViewDataTable
         }
 
         // if $this->disableGenericFilters() was called, generic filters are disabled
-        if (isset($this->variablesDefault['disable_generic_filters'])
-            && $this->variablesDefault['disable_generic_filters'] === true
+        if (isset($this->viewProperties['disable_generic_filters'])
+            && $this->viewProperties['disable_generic_filters'] === true
         ) {
             return true;
         }
@@ -520,8 +612,8 @@ abstract class Piwik_ViewDataTable
      */
     private function areQueuedFiltersDisabled()
     {
-        return isset($this->variablesDefault['disable_queued_filters'])
-            && $this->variablesDefault['disable_queued_filters'];
+        return isset($this->viewProperties['disable_queued_filters'])
+            && $this->viewProperties['disable_queued_filters'];
     }
 
     /**
@@ -733,10 +825,12 @@ abstract class Piwik_ViewDataTable
         // at this point there are some filters values we  may have not set,
         // case of the filter without default values and parameters set directly in this class
         // for example setExcludeLowPopulation
-        // we go through all the $this->variablesDefault array and set the variables not set yet
-        foreach ($this->variablesDefault as $name => $value) {
-            if (!isset($javascriptVariablesToSet[$name])) {
-                $javascriptVariablesToSet[$name] = $value;
+        // we go through all the $this->viewProperties array and set the variables not set yet
+        foreach ($this->getJavaScriptProperties() as $name) {
+            if (!isset($javascriptVariablesToSet[$name])
+                && isset($this->viewProperties[$name])
+            ) {
+                $javascriptVariablesToSet[$name] = $this->viewProperties[$name];
             }
         }
 
@@ -789,7 +883,6 @@ abstract class Piwik_ViewDataTable
             $javascriptVariablesToSet['segment'] = $rawSegment;
         }
 
-
         return $javascriptVariablesToSet;
     }
 
@@ -815,13 +908,14 @@ abstract class Piwik_ViewDataTable
      *
      * @param string $nameVar
      * @return mixed
+     * TODO: is this function necessary?
      */
     protected function getDefault($nameVar)
     {
-        if (!isset($this->variablesDefault[$nameVar])) {
+        if (!isset($this->viewProperties[$nameVar])) {
             return false;
         }
-        return $this->variablesDefault[$nameVar];
+        return $this->viewProperties[$nameVar];
     }
 
     /**
@@ -829,7 +923,7 @@ abstract class Piwik_ViewDataTable
      */
     public function disableGenericFilters()
     {
-        $this->variablesDefault['disable_generic_filters'] = true;
+        $this->viewProperties['disable_generic_filters'] = true;
     }
 
     /**
@@ -838,7 +932,7 @@ abstract class Piwik_ViewDataTable
      */
     public function disableQueuedFilters()
     {
-        $this->variablesDefault['disable_queued_filters'] = true;
+        $this->viewProperties['disable_queued_filters'] = true;
     }
 
     /**
@@ -887,7 +981,7 @@ abstract class Piwik_ViewDataTable
      */
     public function disableSort()
     {
-        $this->variablesDefault['enable_sort'] = 'false';
+        $this->viewProperties['enable_sort'] = 'false';
     }
 
     /**
@@ -1026,7 +1120,7 @@ abstract class Piwik_ViewDataTable
      */
     public function alwaysShowSummaryRow()
     {
-        $this->variablesDefault['keep_summary_row'] = true;
+        $this->viewProperties['keep_summary_row'] = true;
     }
 
     /**
@@ -1040,8 +1134,8 @@ abstract class Piwik_ViewDataTable
         if (is_null($columnName)) {
             $columnName = 'nb_visits';
         }
-        $this->variablesDefault['filter_excludelowpop'] = $columnName;
-        $this->variablesDefault['filter_excludelowpop_value'] = $minValue;
+        $this->viewProperties['filter_excludelowpop'] = $columnName;
+        $this->viewProperties['filter_excludelowpop_value'] = $minValue;
     }
 
     /**
@@ -1052,8 +1146,8 @@ abstract class Piwik_ViewDataTable
      */
     public function setSearchPattern($pattern, $column)
     {
-        $this->variablesDefault['filter_pattern'] = $pattern;
-        $this->variablesDefault['filter_column'] = $column;
+        $this->viewProperties['filter_pattern'] = $pattern;
+        $this->viewProperties['filter_column'] = $column;
     }
 
     /**
@@ -1064,7 +1158,7 @@ abstract class Piwik_ViewDataTable
     public function setLimit($limit)
     {
         if ($limit !== 0) {
-            $this->variablesDefault['filter_limit'] = $limit;
+            $this->viewProperties['filter_limit'] = $limit;
         }
     }
 
@@ -1086,9 +1180,8 @@ abstract class Piwik_ViewDataTable
      */
     public function setSortedColumn($columnId, $order = 'desc')
     {
-//		debug_print_backtrace();
-        $this->variablesDefault['filter_sort_column'] = $columnId;
-        $this->variablesDefault['filter_sort_order'] = $order;
+        $this->viewProperties['filter_sort_column'] = $columnId;
+        $this->viewProperties['filter_sort_order'] = $order;
     }
 
     /**
@@ -1098,7 +1191,7 @@ abstract class Piwik_ViewDataTable
      */
     public function getSortedColumn()
     {
-        return isset($this->variablesDefault['filter_sort_column']) ? $this->variablesDefault['filter_sort_column'] : false;
+        return isset($this->viewProperties['filter_sort_column']) ? $this->viewProperties['filter_sort_column'] : false;
     }
 
     /**
@@ -1110,11 +1203,11 @@ abstract class Piwik_ViewDataTable
      */
     public function setColumnTranslation($columnName, $columnTranslation)
     {
-        if (empty($columnTranslation)) {
+        if (empty($columnTranslation)) { // TODO: no point in this check? should probably be somewhere else.
             throw new Exception('Unknown column: ' . $columnName);
         }
 
-        $this->columnsTranslations[$columnName] = $columnTranslation;
+        $this->viewProperties['translations'][$columnName] = $columnTranslation;
     }
 
     /**
@@ -1125,8 +1218,8 @@ abstract class Piwik_ViewDataTable
      */
     public function getColumnTranslation($columnName)
     {
-        if (isset($this->columnsTranslations[$columnName])) {
-            return $this->columnsTranslations[$columnName];
+        if (isset($this->viewProperties['translations'][$columnName])) {
+            return $this->viewProperties['translations'][$columnName];
         }
         return $columnName;
     }
@@ -1226,7 +1319,7 @@ abstract class Piwik_ViewDataTable
                 $columnsNames = array($columnsNames);
             }
         }
-        $this->columnsToDisplay = array_filter($columnsNames);
+        $this->viewProperties['columns_to_display'] = array_filter($columnsNames);
     }
 
     /**
@@ -1238,7 +1331,7 @@ abstract class Piwik_ViewDataTable
      */
     public function getColumnsToDisplay()
     {
-        if (empty($this->columnsToDisplay)) {
+        if (empty($this->viewProperties['columns_to_display'])) {
             $row = $this->dataTable->getFirstRow();
             if (empty($row)) {
                 return array();
@@ -1247,11 +1340,11 @@ abstract class Piwik_ViewDataTable
             return array_keys($row->getColumns());
         }
 
-        $this->columnsToDisplay = array_filter($this->columnsToDisplay);
+        $this->viewProperties['columns_to_display'] = array_filter($this->viewProperties['columns_to_display']);
 
         $this->removeEmptyColumnsFromDisplay();
 
-        return $this->columnsToDisplay;
+        return $this->viewProperties['columns_to_display'];
     }
 
     private function removeEmptyColumnsFromDisplay()
@@ -1266,12 +1359,12 @@ abstract class Piwik_ViewDataTable
         }
         if (is_array($emptyColumns)) {
             foreach ($emptyColumns as $emptyColumn) {
-                $key = array_search($emptyColumn, $this->columnsToDisplay);
+                $key = array_search($emptyColumn, $this->viewProperties['columns_to_display']);
                 if ($key !== false) {
-                    unset($this->columnsToDisplay[$key]);
+                    unset($this->viewProperties['columns_to_display']);
                 }
             }
-            $this->columnsToDisplay = array_values($this->columnsToDisplay);
+            $this->viewProperties['columns_to_display'] = array_values($this->viewProperties['columns_to_display']);
         }
     }
 
@@ -1299,7 +1392,7 @@ abstract class Piwik_ViewDataTable
      */
     public function setColumnsTranslations($columnsTranslations)
     {
-        $this->columnsTranslations += $columnsTranslations;
+        $this->viewProperties['translations'] += $columnsTranslations;
     }
 
     /**
@@ -1311,10 +1404,10 @@ abstract class Piwik_ViewDataTable
      */
     public function setCustomParameter($parameter, $value)
     {
-        if (isset($this->variablesDefault[$parameter])) {
+        if (isset($this->viewProperties[$parameter])) {
             throw new Exception("$parameter is already defined for this DataTable.");
         }
-        $this->variablesDefault[$parameter] = $value;
+        $this->viewProperties[$parameter] = $value;
     }
 
     /**

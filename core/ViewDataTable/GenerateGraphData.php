@@ -33,13 +33,50 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 {
     /**
      * Number of elements to display in the graph.
-     * @var int
+     * @var int TODO: docs for 'graph_limit'. need to move & document all other view properties.
      */
-    protected $graphLimit = null;
+     
     protected $yAxisUnit = '';
 
     // used for the series picker
     protected $selectableColumns = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->viewProperties['graph_limit'] = null;
+        
+        $labelIdx = array_search('label', $this->viewProperties['columns_to_display']);
+        unset($this->viewProperties[$labelIdx]);
+    }
+    
+    public function init($currentControllerName,
+                           $currentControllerAction,
+                           $apiMethodToRequestDataTable,
+                           $controllerActionCalledWhenRequestSubTable = null)
+    {
+        parent::init($currentControllerName,
+                     $currentControllerAction,
+                     $apiMethodToRequestDataTable,
+                     $controllerActionCalledWhenRequestSubTable);
+        
+        // do not sort if sorted column was initially "label" or eg. it would make "Visits by Server time" not pretty
+        if ($this->getSortedColumn() != 'label') {
+            $this->setSortedColumn(reset($this->viewProperties['columns_to_display']));
+        }
+        
+        // selectable columns
+        $metricsForDay = array('nb_uniq_visitors');
+        $metricsForAllPeriods = array('nb_visits', 'nb_actions');
+        if (isset($this->period)
+            && $this->period == 'day'
+        ) {
+            $selectableColumns = array_merge($metricsForDay, $metricsForAllPeriods);
+        } else {
+            $selectableColumns = $metricsForAllPeriods;
+        }
+        $this->setSelectableColumns($selectableColumns);
+    }
 
     public function setAxisYUnit($unit)
     {
@@ -54,7 +91,7 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
      */
     public function setGraphLimit($limit)
     {
-        $this->graphLimit = $limit;
+        $this->viewProperties['graph_limit'] = $limit;
     }
 
     /**
@@ -64,7 +101,7 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
      */
     public function getGraphLimit()
     {
-        return $this->graphLimit;
+        return $this->viewProperties['graph_limit'];
     }
 
     protected $displayPercentageInTooltip = true;

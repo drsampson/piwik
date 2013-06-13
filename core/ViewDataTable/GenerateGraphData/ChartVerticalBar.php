@@ -17,8 +17,6 @@
  */
 class Piwik_ViewDataTable_GenerateGraphData_ChartVerticalBar extends Piwik_ViewDataTable_GenerateGraphData
 {
-    protected $graphLimit = 6;
-
     protected function getViewDataTableId()
     {
         return 'generateDataChartVerticalBar';
@@ -26,7 +24,10 @@ class Piwik_ViewDataTable_GenerateGraphData_ChartVerticalBar extends Piwik_ViewD
 
     function __construct()
     {
+        parent::__construct();
+        
         $this->view = new Piwik_Visualization_Chart_VerticalBar();
+        $this->viewProperties['graph_limit'] = 6;
     }
 
     protected function getUnitsForColumnsToDisplay()

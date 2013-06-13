@@ -165,14 +165,38 @@ class Piwik_UserSettings extends Piwik_Plugin
     function getListHooksRegistered()
     {
         $hooks = array(
-            'ArchiveProcessing_Day.compute'    => 'archiveDay',
-            'ArchiveProcessing_Period.compute' => 'archivePeriod',
-            'WidgetsList.add'                  => 'addWidgets',
-            'Menu.add'                         => 'addMenu',
-            'API.getReportMetadata'            => 'getReportMetadata',
-            'API.getSegmentsMetadata'          => 'getSegmentsMetadata',
+            'ArchiveProcessing_Day.compute'      => 'archiveDay',
+            'ArchiveProcessing_Period.compute'   => 'archivePeriod',
+            'WidgetsList.add'                    => 'addWidgets',
+            'Menu.add'                           => 'addMenu',
+            'API.getReportMetadata'              => 'getReportMetadata',
+            'API.getSegmentsMetadata'            => 'getSegmentsMetadata',
+            'ViewDataTable.getReportDisplayProperties' => 'getReportDisplayProperties',
         );
         return $hooks;
+    }
+    
+    /**
+     * TODO
+     */
+    public function getReportDisplayProperties($notification)
+    {
+        $reportViewProperties = array(
+            'UserSettings.getResolution' => array('show_search' => false,
+                                                  'show_exclude_low_population' => false,
+                                                  'filter_limit' => 5,
+                                                  'graph_limit' => 5,
+                                                  'translations' => array(
+                                                      'label' => Piwik_Translate('UserSettings_ColumnResolution')
+                                                   ))
+        );
+        
+        $properties = &$notification->getNotificationObject();
+        $apiAction = $notification->getNotificationInfo();
+        
+        if (isset($reportViewProperties[$apiAction])) {
+            $properties = $reportViewProperties[$apiAction];
+        }
     }
 
     /*
