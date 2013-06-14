@@ -155,7 +155,7 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
      */
     public function addColumnToDisplay($columnName)
     {
-        $this->columnsToDisplay[] = $columnName;
+        $this->viewProperties['columns_to_display'][] = $columnName;
     }
 
     /**

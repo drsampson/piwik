@@ -81,7 +81,6 @@ abstract class Piwik_ViewDataTable
      */
     protected $dataTable = null;
 
-
     /**
      * List of filters to apply after the data has been loaded from the API
      *
@@ -142,6 +141,7 @@ abstract class Piwik_ViewDataTable
      * Variable that is used as the DIV ID in the rendered HTML
      *
      * @var string
+     * TODO: shouldn't need this & viewProperties['uniqueId']
      */
     protected $uniqIdTable = null;
     
