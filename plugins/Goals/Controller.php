@@ -33,7 +33,11 @@ class Piwik_Goals_Controller extends Piwik_Controller
 
     private function formatConversionRate($conversionRate)
     {
-        return sprintf('%.' . self::CONVERSION_RATE_PRECISION . 'f%%', $conversionRate);
+        $conversionRateString = is_numeric($conversionRate) || is_string($conversionRate)
+                                ? $conversionRate
+                                /** @var Piwik_DataTable $conversionRate  */
+                                : ( current($conversionRate->getFirstRow()->getColumns()) );
+        return sprintf('%.' . self::CONVERSION_RATE_PRECISION . 'f%%', $conversionRateString);
     }
 
     public function __construct()
