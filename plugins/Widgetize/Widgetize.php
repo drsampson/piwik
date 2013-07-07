@@ -44,31 +44,22 @@ class Piwik_Widgetize extends Piwik_Plugin
         Piwik_AddTopMenu('General_Widgets', $urlParams, true, 5, $isHTML = false, $tooltip);
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
         $jsFiles[] = "libs/jquery/jquery.truncate.js";
         $jsFiles[] = "libs/jquery/jquery.scrollTo.js";
-        $jsFiles[] = "themes/default/common.js";
-        $jsFiles[] = "plugins/CoreHome/templates/datatable.js";
-        $jsFiles[] = "plugins/Dashboard/templates/widgetMenu.js";
-        $jsFiles[] = "plugins/Widgetize/templates/widgetize.js";
+        $jsFiles[] = "plugins/Zeitgeist/javascripts/piwikHelper.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/datatable.js";
+        $jsFiles[] = "plugins/Dashboard/javascripts/widgetMenu.js";
+        $jsFiles[] = "plugins/Widgetize/javascripts/widgetize.js";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-
-        $cssFiles[] = "plugins/CoreHome/templates/styles.css";
-        $cssFiles[] = "plugins/CoreHome/templates/datatable.css";
-        $cssFiles[] = "plugins/CoreHome/templates/cloud.css";
-        $cssFiles[] = "plugins/Dashboard/templates/dashboard.css";
+        $cssFiles[] = "plugins/Widgetize/stylesheets/widgetize.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/corehome.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/datatable.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/cloud.css";
+        $cssFiles[] = "plugins/Dashboard/stylesheets/dashboard.css";
     }
 }

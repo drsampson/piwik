@@ -150,7 +150,7 @@ abstract class Piwik_Controller
      */
     protected function renderView(Piwik_ViewDataTable $view, $fetch = false)
     {
-        Piwik_PostEvent('Controller.renderView',
+        Piwik_PostEvent('Controller.renderView', array(
             $this,
             array('view'                                      => $view,
                   'controllerName'                            => $view->getCurrentControllerName(),
@@ -158,7 +158,7 @@ abstract class Piwik_Controller
                   'apiMethodToRequestDataTable'               => $view->getApiMethodToRequestDataTable(),
                   'controllerActionCalledWhenRequestSubTable' => $view->getControllerActionCalledWhenRequestSubTable(),
             )
-        );
+        ));
 
         $view->main();
 
@@ -464,7 +464,7 @@ abstract class Piwik_Controller
     protected function setBasicVariablesView($view)
     {
         $view->debugTrackVisitsInsidePiwikUI = Piwik_Config::getInstance()->Debug['track_visits_inside_piwik_ui'];
-        $view->isSuperUser = Zend_Registry::get('access')->isSuperUser();
+        $view->isSuperUser = Piwik_Access::getInstance()->isSuperUser();
         $view->hasSomeAdminAccess = Piwik::isUserHasSomeAdminAccess();
         $view->isCustomLogo = Piwik_Config::getInstance()->branding['use_custom_logo'];
         $view->logoHeader = Piwik_API_API::getInstance()->getHeaderLogoUrl();
@@ -714,7 +714,7 @@ abstract class Piwik_Controller
             $defaultWebsiteId = $defaultReport;
         }
 
-        Piwik_PostEvent('Controller.getDefaultWebsiteId', $defaultWebsiteId);
+        Piwik_PostEvent('Controller.getDefaultWebsiteId', array(&$defaultWebsiteId));
 
         if ($defaultWebsiteId) {
             return $defaultWebsiteId;
@@ -734,7 +734,7 @@ abstract class Piwik_Controller
      */
     protected function getDefaultDate()
     {
-        // NOTE: a change in this function might mean a change in plugins/UsersManager/templates/userSettings.js as well
+        // NOTE: a change in this function might mean a change in plugins/UsersManager/javascripts/usersSettings.js as well
         $userSettingsDate = Piwik_UsersManager_API::getInstance()->getUserPreference(Piwik::getCurrentUserLogin(), Piwik_UsersManager_API::PREFERENCE_DEFAULT_REPORT_DATE);
         if ($userSettingsDate == 'yesterday') {
             return $userSettingsDate;

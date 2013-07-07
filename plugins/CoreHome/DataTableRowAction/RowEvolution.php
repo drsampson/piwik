@@ -67,6 +67,7 @@ class Piwik_CoreHome_DataTableRowAction_RowEvolution
      * Initialize some local variables from the request
      * @param int $idSite
      * @param Piwik_Date $date ($this->date from controller)
+     * @param null|string $graphType
      * @throws Exception
      */
     public function __construct($idSite, $date, $graphType = null)
@@ -213,14 +214,14 @@ class Piwik_CoreHome_DataTableRowAction_RowEvolution
             $min = isset($metricData['min']) ? $metricData['min'] : 0;
             $change = isset($metricData['change']) ? $metricData['change'] : false;
 
-            $unit = Piwik_API_API::getUnit($metric, $this->idSite);
+            $unit = Piwik_Metrics::getUnit($metric, $this->idSite);
             $min .= $unit;
             $max .= $unit;
 
             $details = Piwik_Translate('RowEvolution_MetricBetweenText', array($min, $max));
 
             if ($change !== false) {
-                $lowerIsBetter = Piwik_API_API::isLowerValueBetter($metric);
+                $lowerIsBetter = Piwik_Metrics::isLowerValueBetter($metric);
                 if (substr($change, 0, 1) == '+') {
                     $changeClass = $lowerIsBetter ? 'bad' : 'good';
                     $changeImage = $lowerIsBetter ? 'arrow_up_red' : 'arrow_up';

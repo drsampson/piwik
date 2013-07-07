@@ -179,7 +179,7 @@ class Piwik_UserSettings extends Piwik_Plugin
     /**
      * TODO
      */
-    public function getReportDisplayProperties($notification)
+    public function getReportDisplayProperties(&$properties, $apiAction)
     {
         $basicUserSettingsProperties = array('show_search'                 => false,
                                              'show_exclude_low_population' => false,
@@ -286,9 +286,6 @@ class Piwik_UserSettings extends Piwik_Plugin
             ),
         );
         
-        $properties = &$notification->getNotificationObject();
-        $apiAction = $notification->getNotificationInfo();
-        
         if (isset($reportViewProperties[$apiAction])) {
             $properties = $reportViewProperties[$apiAction];
         }
@@ -296,13 +293,9 @@ class Piwik_UserSettings extends Piwik_Plugin
 
     /*
      * Registers reports metadata
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    public function getReportMetadata($notification)
+    public function getReportMetadata(&$reports)
     {
-        $reports = & $notification->getNotificationObject();
-
         $i = 0;
         foreach ($this->reportMetadata as $report) {
             list($category, $name, $apiModule, $apiAction, $columnName) = $report;
@@ -340,12 +333,9 @@ class Piwik_UserSettings extends Piwik_Plugin
 
     /**
      * Get segments meta data
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    public function getSegmentsMetadata($notification)
+    public function getSegmentsMetadata(&$segments)
     {
-        $segments =& $notification->getNotificationObject();
         foreach ($this->reportMetadata as $report) {
             @list($category, $name, $apiModule, $apiAction, $columnName, $segment, $sqlSegment, $acceptedValues, $sqlFilter) = $report;
             if (empty($segment)) continue;
@@ -386,31 +376,21 @@ class Piwik_UserSettings extends Piwik_Plugin
      * Daily archive of User Settings report. Processes reports for Visits by Resolution,
      * by Browser, Browser family, etc. Some reports are built from the logs, some reports
      * are superset of an existing report (eg. Browser family is built from the Browser report)
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    function archiveDay($notification)
+    public function archiveDay(Piwik_ArchiveProcessor_Day $archiveProcessor)
     {
-        $archiveProcessing = $notification->getNotificationObject();
-
-        $archiving = new Piwik_UserSettings_Archiver($archiveProcessing);
+        $archiving = new Piwik_UserSettings_Archiver($archiveProcessor);
         if($archiving->shouldArchive()) {
             $archiving->archiveDay();
         }
     }
 
-
     /**
      * Period archiving: simply sums up daily archives
-     *
-     * @param Piwik_Event_Notification $notification  notification object
-     * @return void
      */
-    function archivePeriod($notification)
+    public function archivePeriod(Piwik_ArchiveProcessor_Period $archiveProcessor)
     {
-        $archiveProcessing = $notification->getNotificationObject();
-
-        $archiving = new Piwik_UserSettings_Archiver($archiveProcessing);
+        $archiving = new Piwik_UserSettings_Archiver($archiveProcessor);
         if($archiving->shouldArchive()) {
             $archiving->archivePeriod();
         }

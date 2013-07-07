@@ -45,11 +45,12 @@ class Piwik_UsersManager extends Piwik_Plugin
      *
      * @return array
      */
-    function getListHooksRegistered()
+    public function getListHooksRegistered()
     {
         return array(
             'AdminMenu.add'                 => 'addMenu',
             'AssetManager.getJsFiles'       => 'getJsFiles',
+            'AssetManager.getCssFiles'      => 'getCssFiles',
             'SitesManager.deleteSite'       => 'deleteSite',
             'Common.fetchWebsiteAttributes' => 'recordAdminUsersInCache',
         );
@@ -61,12 +62,12 @@ class Piwik_UsersManager extends Piwik_Plugin
      * Will record in the tracker config file the list of Admin token_auth for this website. This
      * will be used when the Tracking API is used with setIp(), setForceDateTime(), setVisitorId(), etc.
      *
-     * @param Piwik_Event_Notification $notification  notification object
+     * @param $array
+     * @param $idSite
      * @return void
      */
-    function recordAdminUsersInCache($notification)
+    public function recordAdminUsersInCache(&$array, $idSite)
     {
-        $idSite = $notification->getNotificationInfo();
         // add the 'hosts' entry in the website array
         $users = Piwik_UsersManager_API::getInstance()->getUsersWithSiteAccess($idSite, 'admin');
 
@@ -74,19 +75,13 @@ class Piwik_UsersManager extends Piwik_Plugin
         foreach ($users as $user) {
             $tokens[] = $user['token_auth'];
         }
-        $array =& $notification->getNotificationObject();
-        $array['admin_token_auth'] = $tokens;
     }
 
     /**
      * Delete user preferences associated with a particular site
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    function deleteSite($notification)
+    public function deleteSite(&$idSite)
     {
-        $idSite = & $notification->getNotificationObject();
-
         Piwik_Option::getInstance()->deleteLike('%\_' . Piwik_UsersManager_API::PREFERENCE_DEFAULT_REPORT, $idSite);
     }
 
@@ -94,15 +89,19 @@ class Piwik_UsersManager extends Piwik_Plugin
      * Return list of plug-in specific JavaScript files to be imported by the asset manager
      *
      * @see Piwik_AssetManager
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
+        $jsFiles[] = "plugins/UsersManager/javascripts/usersManager.js";
+        $jsFiles[] = "plugins/UsersManager/javascripts/usersSettings.js";
+    }
 
-        $jsFiles[] = "plugins/UsersManager/templates/UsersManager.js";
-        $jsFiles[] = "plugins/UsersManager/templates/userSettings.js";
+    /**
+     * Get CSS files
+     */
+    function getCssFiles(&$cssFiles)
+    {
+        $cssFiles[] = "plugins/UsersManager/stylesheets/usersManager.css";
     }
 
     /**

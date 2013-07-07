@@ -16,13 +16,15 @@ class Tracker_ActionTest extends DatabaseTestCase
         $config->setTestEnvironment($userFile, false);
 
         Piwik_PluginsManager::getInstance()->loadPlugins(array('SitesManager'));
+        
+        Piwik_Translate::getInstance()->loadEnglishTranslation();
     }
 
     protected function setUpRootAccess()
     {
         $pseudoMockAccess = new FakeAccess;
         FakeAccess::$superUser = true;
-        Zend_Registry::set('access', $pseudoMockAccess);
+        Piwik_Access::setSingletonInstance($pseudoMockAccess);
     }
 
     public function getTestUrls()
@@ -359,9 +361,10 @@ class Tracker_ActionTest extends DatabaseTestCase
     {
         $this->setUpRootAccess();
         $idSite = Piwik_SitesManager_API::getInstance()->addSite("site1", array('http://example.org'));
-        $action = new Test_Piwik_TrackerAction_extractUrlAndActionNameFromRequest();
-        $action->setRequest($request);
-        $action->setIdSite($idSite);
+        $request['idsite'] = $idSite;
+        $request = new Piwik_Tracker_Request($request);
+        $action = new Test_Piwik_TrackerAction_extractUrlAndActionNameFromRequest($request);
+
         $this->assertEquals($action->public_extractUrlAndActionNameFromRequest(), $expected);
     }
 }

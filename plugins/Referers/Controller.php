@@ -17,7 +17,7 @@ class Piwik_Referers_Controller extends Piwik_Controller
 {
     function index()
     {
-        $view = Piwik_View::factory('index');
+        $view = new Piwik_View('@Referers/index');
 
         $view->graphEvolutionReferers = $this->getEvolutionGraph(true, Piwik_Common::REFERER_TYPE_DIRECT_ENTRY, array('nb_visits'));
         $view->nameGraphEvolutionReferers = 'ReferersgetEvolutionGraph';
@@ -120,7 +120,7 @@ class Piwik_Referers_Controller extends Piwik_Controller
 
     function getSearchEnginesAndKeywords()
     {
-        $view = Piwik_View::factory('searchEngines_Keywords');
+        $view = new Piwik_View('@Referers/getSearchEnginesAndKeywords');
         $view->searchEngines = $this->getSearchEngines(true);
         $view->keywords = $this->getKeywords(true);
         echo $view->render();
@@ -295,7 +295,7 @@ class Piwik_Referers_Controller extends Piwik_Controller
 
     function indexWebsites($fetch = false)
     {
-        $view = Piwik_View::factory('Websites_SocialNetworks');
+        $view = new Piwik_View('@Referers/indexWebsites');
         $view->websites = $this->getWebsites(true);
         $view->socials = $this->getSocials(true);
         if ($fetch) {
@@ -437,7 +437,7 @@ class Piwik_Referers_Controller extends Piwik_Controller
             $value = 0;
             $row = $dataTableReferersType->getRowFromLabel($columnId);
             if ($row !== false) {
-                $value = $row->getColumn(Piwik_Archive::INDEX_NB_VISITS);
+                $value = $row->getColumn(Piwik_Metrics::INDEX_NB_VISITS);
             }
             $return[$nameVar] = $value;
         }
@@ -666,7 +666,7 @@ function DisplayTopKeywords($url = "")
     /**
      * Returns the URL for the sparkline of visits with a specific referrer type.
      *
-     * @param int $typeReferrer The referrer type. Referrer types are defined in Piwik_Common class.
+     * @param int $referrerType The referrer type. Referrer types are defined in Piwik_Common class.
      * @return string The URL that can be used to get a sparkline image.
      */
     private function getReferrerUrlSparkline($referrerType)
@@ -684,7 +684,7 @@ function DisplayTopKeywords($url = "")
      * Returns an array containing the number of distinct referrers for each
      * referrer type.
      *
-     * @param string|false $date The date to use when getting metrics. If false, the
+     * @param bool|string $date The date to use when getting metrics. If false, the
      *                           date query param is used.
      * @return array The metrics.
      */
@@ -715,7 +715,6 @@ function DisplayTopKeywords($url = "")
      * @param string $lastPeriodDate The date of the period in the past.
      * @param array $previousValues Array mapping view property names w/ past values. Keys
      *                              in this array should be the same as keys in $currentValues.
-     * @param bool $isVisits Whether the values are counting visits or something else.
      */
     private function addEvolutionPropertiesToView($view, $date, $currentValues, $lastPeriodDate, $previousValues)
     {

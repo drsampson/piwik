@@ -66,13 +66,8 @@ class Piwik_PrivacyManager extends Piwik_Plugin
         );
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getScheduledTasks($notification)
+    public function getScheduledTasks(&$tasks)
     {
-        $tasks = & $notification->getNotificationObject();
-
         // both tasks are low priority so they will execute after most others, but not lowest, so
         // they will execute before the optimize tables task
 
@@ -87,14 +82,9 @@ class Piwik_PrivacyManager extends Piwik_Plugin
         $tasks[] = $purgeLogDataTask;
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
-        $jsFiles[] = "plugins/PrivacyManager/templates/privacySettings.js";
+        $jsFiles[] = "plugins/PrivacyManager/javascripts/privacySettings.js";
     }
 
     function addMenu()
@@ -332,7 +322,7 @@ class Piwik_PrivacyManager extends Piwik_Plugin
     private static function getGoalMetricsToKeep()
     {
         // keep all goal metrics
-        return array_values(Piwik_Archive::$mappingFromIdToNameGoal);
+        return array_values(Piwik_Metrics::$mappingFromIdToNameGoal);
     }
 
     /**

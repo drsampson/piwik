@@ -9,6 +9,8 @@
  * @package Piwik
  */
 
+const FIX_ME_OMG = 'this is a warning and reminder to fix this code ';
+
 /**
  * Creates a Piwik_DataTable or Piwik_DataTable_Array instance based on an array
  * index created by Piwik_Archive_DataCollection.
@@ -74,6 +76,8 @@ class Piwik_Archive_DataTableFactory
         $this->dataNames = $dataNames;
         $this->dataType = $dataType;
         $this->sitesId = $sitesId;
+
+        //here index period by string only
         $this->periods = $periods;
         $this->defaultRow = $defaultRow;
     }
@@ -91,12 +95,13 @@ class Piwik_Archive_DataTableFactory
         $this->expandDataTable = true;
         $this->addMetadataSubtableId = $addMetadataSubtableId;
     }
-    
+
     /**
      * Tells the factory instance to create a DataTable using a blob with the
      * supplied subtable ID.
-     * 
+     *
      * @param int $idSubtable An in-database subtable ID.
+     * @throws Exception
      */
     public function useSubtable($idSubtable)
     {
@@ -226,6 +231,7 @@ class Piwik_Archive_DataTableFactory
      * @param array $index @see Piwik_Archive_DataCollection
      * @param array $resultIndices @see make
      * @param array $keyMetadata The metadata to add to the table when it's created.
+     * @return Piwik_DataTable_Array
      */
     private function createDataTableArrayFromIndex($index, $resultIndices, $keyMetadata = array())
     {
@@ -354,7 +360,9 @@ class Piwik_Archive_DataTableFactory
         $periods = $this->periods;
         $table->filter(function ($table) use($periods) {
             $table->metadata['site'] = new Piwik_Site($table->metadata['site']);
-            $table->metadata['period'] = $periods[$table->metadata['period']];
+            $table->metadata['period'] = empty($periods[$table->metadata['period']])
+                                            ? FIX_ME_OMG
+                                            : $periods[$table->metadata['period']];
         });
     }
     
@@ -367,6 +375,9 @@ class Piwik_Archive_DataTableFactory
      */
     private function prettifyIndexLabel($labelType, $label)
     {
+        if(empty($this->periods[$label])) {
+            return $label; // BAD BUG FIXME
+        }
         if ($labelType == 'period') { // prettify period labels
             return $this->periods[$label]->getPrettyString();
         }

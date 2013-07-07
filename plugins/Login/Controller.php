@@ -19,7 +19,7 @@ class Piwik_Login_Controller extends Piwik_Controller
     /**
      * Generate hash on user info and password
      *
-     * @param string $userinfo User name, email, etc
+     * @param string $userInfo User name, email, etc
      * @param string $password
      * @return string
      */
@@ -49,7 +49,8 @@ class Piwik_Login_Controller extends Piwik_Controller
      * Login form
      *
      * @param string $messageNoAccess Access error message
-     * @param string $currentUrl Current URL
+     * @param bool $infoMessage
+     * @internal param string $currentUrl Current URL
      * @return void
      */
     function login($messageNoAccess = null, $infoMessage = false)
@@ -74,7 +75,7 @@ class Piwik_Login_Controller extends Piwik_Controller
             }
         }
 
-        $view = Piwik_View::factory('login');
+        $view = new Piwik_View('@Login/login');
         $view->AccessErrorString = $messageNoAccess;
         $view->infoMessage = nl2br($infoMessage);
         $view->addForm($form);
@@ -148,7 +149,7 @@ class Piwik_Login_Controller extends Piwik_Controller
                       'rememberMe'  => $rememberMe,
         );
         Piwik_Nonce::discardNonce('Piwik_Login.login');
-        Piwik_PostEvent('Login.initSession', $info);
+        Piwik_PostEvent('Login.initSession', array(&$info));
         Piwik_Url::redirectToUrl($urlToRedirect);
     }
 
@@ -190,7 +191,7 @@ class Piwik_Login_Controller extends Piwik_Controller
             $formErrors = $formData['errors'];
         }
 
-        $view = Piwik_View::factory('message');
+        $view = new Piwik_View('@Login/resetPassword');
         $view->infoMessage = $infoMessage;
         $view->formErrors = $formErrors;
         echo $view->render();
@@ -199,6 +200,7 @@ class Piwik_Login_Controller extends Piwik_Controller
     /**
      * Saves password reset info and sends confirmation email.
      *
+     * @param Piwik_QuickForm2 $form
      * @return array Error message(s) if an error occurs.
      */
     private function resetPasswordFirstStep($form)
@@ -321,6 +323,7 @@ class Piwik_Login_Controller extends Piwik_Controller
      *
      * @param array $user User info.
      * @param string $passwordHash The hashed password to use.
+     * @throws Exception
      */
     private function setNewUserPassword($user, $passwordHash)
     {

@@ -191,7 +191,7 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
     {
         $units = array();
         foreach ($requestedColumnNames as $columnName) {
-            $derivedUnit = Piwik_API_API::getUnit($columnName, $idSite);
+            $derivedUnit = Piwik_Metrics::getUnit($columnName, $idSite);
             $units[$columnName] = empty($derivedUnit) ? false : $derivedUnit;
         }
         return $units;
@@ -226,7 +226,7 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
                       // Column to sort by, before truncation
                       $this->dataTable->getSortedByColumnName()
                           ? $this->dataTable->getSortedByColumnName()
-                          : Piwik_Archive::INDEX_NB_VISITS
+                          : Piwik_Metrics::INDEX_NB_VISITS
                 )
             );
         }

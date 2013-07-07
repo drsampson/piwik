@@ -25,7 +25,7 @@ class Piwik_API_DocumentationGenerator
     {
         $plugins = Piwik_PluginsManager::getInstance()->getLoadedPluginsName();
         foreach ($plugins as $plugin) {
-            $plugin = Piwik::unprefixClass($plugin);
+            $plugin = Piwik_Common::unprefixClass($plugin);
             try {
                 Piwik_API_Proxy::getInstance()->registerClass('Piwik_' . $plugin . '_API');
             } catch (Exception $e) {
@@ -127,6 +127,7 @@ class Piwik_API_DocumentationGenerator
 
             'languageCode'   => 'fr',
             'url'            => 'http://forum.piwik.org/',
+            'pageUrl'            => 'http://forum.piwik.org/',
             'apiModule'      => 'UserCountry',
             'apiAction'      => 'getCountry',
             'lastMinutes'    => '30',

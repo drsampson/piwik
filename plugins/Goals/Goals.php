@@ -24,7 +24,7 @@ class Piwik_Goals extends Piwik_Plugin
     static public function getReportsWithGoalMetrics()
     {
         $dimensions = array();
-        Piwik_PostEvent('Goals.getReportsWithGoalMetrics', $dimensions);
+        Piwik_PostEvent('Goals.getReportsWithGoalMetrics', array(&$dimensions));
         $dimensionsByGroup = array();
         foreach ($dimensions as $dimension) {
             $group = $dimension['category'];
@@ -93,12 +93,9 @@ class Piwik_Goals extends Piwik_Plugin
 
     /**
      * Delete goals recorded for this site
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    function deleteSiteGoals($notification)
+    function deleteSiteGoals($idSite)
     {
-        $idSite = & $notification->getNotificationObject();
         Piwik_Query("DELETE FROM " . Piwik_Common::prefixTable('goal') . " WHERE idsite = ? ", array($idSite));
     }
 
@@ -108,14 +105,10 @@ class Piwik_Goals extends Piwik_Plugin
      * and for each goal.
      *
      * Also, this will update metadata of all other reports that have Goal segmentation
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    public function getReportMetadata($notification)
+    public function getReportMetadata(&$reports, $info)
     {
-        $info = $notification->getNotificationInfo();
         $idSites = $info['idSites'];
-        $reports = & $notification->getNotificationObject();
 
         // Processed in AddColumnsProcessedMetricsGoal
         // These metrics will also be available for some reports, for each goal
@@ -239,7 +232,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'name'             => Piwik_Translate('General_EcommerceOrders'),
                     'module'           => 'Goals',
                     'action'           => 'get',
-                    'parameters'       => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER),
+                    'parameters'       => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER),
                     'metrics'          => $ecommerceMetrics,
                     'processedMetrics' => false,
                     'order'            => 10
@@ -252,7 +245,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'dimension'         => Piwik_Translate('Goals_VisitsUntilConv'),
                     'constantRowsCount' => true,
                     'metrics'           => $conversionReportMetrics,
-                    'parameters'        => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER),
+                    'parameters'        => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER),
                     'order'             => 11
                 );
                 $reports[] = array(
@@ -263,7 +256,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'dimension'         => Piwik_Translate('Goals_DaysToConv'),
                     'constantRowsCount' => true,
                     'metrics'           => $conversionReportMetrics,
-                    'parameters'        => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER),
+                    'parameters'        => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER),
                     'order'             => 12
                 );
 
@@ -280,7 +273,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'name'             => Piwik_Translate('General_AbandonedCarts'),
                     'module'           => 'Goals',
                     'action'           => 'get',
-                    'parameters'       => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_CART),
+                    'parameters'       => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_CART),
                     'metrics'          => $abandonedCartMetrics,
                     'processedMetrics' => false,
                     'order'            => 15
@@ -294,7 +287,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'dimension'         => Piwik_Translate('Goals_VisitsUntilConv'),
                     'constantRowsCount' => true,
                     'metrics'           => $conversionReportMetrics,
-                    'parameters'        => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_CART),
+                    'parameters'        => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_CART),
                     'order'             => 20
                 );
                 $reports[] = array(
@@ -305,7 +298,7 @@ class Piwik_Goals extends Piwik_Plugin
                     'dimension'         => Piwik_Translate('Goals_DaysToConv'),
                     'constantRowsCount' => true,
                     'metrics'           => $conversionReportMetrics,
-                    'parameters'        => array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_CART),
+                    'parameters'        => array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_CART),
                     'order'             => 25
                 );
 
@@ -333,7 +326,7 @@ class Piwik_Goals extends Piwik_Plugin
          * to all reports that have Goal segmentation
          */
         $reportsWithGoals = array();
-        Piwik_PostEvent('Goals.getReportsWithGoalMetrics', $reportsWithGoals);
+        Piwik_PostEvent('Goals.getReportsWithGoalMetrics', array(&$reportsWithGoals));
         foreach ($reportsWithGoals as $reportWithGoals) {
             // Select this report from the API metadata array
             // and add the Goal metrics to it
@@ -367,12 +360,9 @@ class Piwik_Goals extends Piwik_Plugin
      * This function executes when the 'Goals.getReportsWithGoalMetrics' event fires. It
      * adds the 'visits to conversion' report metadata to the list of goal reports so
      * this report will be displayed.
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
-    function getActualReportsWithGoalMetrics($notification)
+    public function getActualReportsWithGoalMetrics(&$dimensions)
     {
-        $dimensions =& $notification->getNotificationObject();
         $dimensions = array_merge($dimensions, array(
                                                     array('category' => Piwik_Translate('General_Visit'),
                                                           'name'     => Piwik_Translate('Goals_VisitsUntilConv'),
@@ -387,12 +377,8 @@ class Piwik_Goals extends Piwik_Plugin
                                                ));
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    public function getSegmentsMetadata($notification)
+    public function getSegmentsMetadata(&$segments)
     {
-        $segments =& $notification->getNotificationObject();
         $segments[] = array(
             'type'           => 'dimension',
             'category'       => Piwik_Translate('General_Visit'),
@@ -403,44 +389,30 @@ class Piwik_Goals extends Piwik_Plugin
         );
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-        $jsFiles[] = "plugins/Goals/templates/GoalForm.js";
+        $jsFiles[] = "plugins/Goals/javascripts/goalsForm.js";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-        $cssFiles[] = "plugins/Goals/templates/goals.css";
+        $cssFiles[] = "plugins/Goals/stylesheets/goals.css";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function fetchGoalsFromDb($notification)
+    public function fetchGoalsFromDb(&$array, $idSite)
     {
-        $idsite = $notification->getNotificationInfo();
-
         // add the 'goal' entry in the website array
-        $array =& $notification->getNotificationObject();
-        $array['goals'] = Piwik_Goals_API::getInstance()->getGoals($idsite);
+        $array['goals'] = Piwik_Goals_API::getInstance()->getGoals($idSite);
     }
 
-    function addWidgets()
+    public function addWidgets()
     {
         $idSite = Piwik_Common::getRequestVar('idSite', null, 'int');
 
         // Ecommerce widgets
         $site = new Piwik_Site($idSite);
         if ($site->isEcommerceEnabled()) {
-            Piwik_AddWidget('Goals_Ecommerce', 'Goals_EcommerceOverview', 'Goals', 'widgetGoalReport', array('idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER));
+            Piwik_AddWidget('Goals_Ecommerce', 'Goals_EcommerceOverview', 'Goals', 'widgetGoalReport', array('idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER));
             Piwik_AddWidget('Goals_Ecommerce', 'Goals_EcommerceLog', 'Goals', 'getEcommerceLog');
             foreach ($this->ecommerceReports as $widget) {
                 Piwik_AddWidget('Goals_Ecommerce', $widget[0], $widget[1], $widget[2]);
@@ -467,23 +439,23 @@ class Piwik_Goals extends Piwik_Plugin
             Piwik_AddMenu($mainGoalMenu, '', array(
                                                   'module' => 'Goals',
                                                   'action' => ($site->isEcommerceEnabled() ? 'ecommerceReport' : 'addNewGoal'),
-                                                  'idGoal' => ($site->isEcommerceEnabled() ? Piwik_Archive::LABEL_ECOMMERCE_ORDER : null)),
+                                                  'idGoal' => ($site->isEcommerceEnabled() ? Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER : null)),
                 true,
                 25);
             if ($site->isEcommerceEnabled()) {
-                Piwik_AddMenu($mainGoalMenu, 'Goals_Ecommerce', array('module' => 'Goals', 'action' => 'ecommerceReport', 'idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER), true, 1);
+                Piwik_AddMenu($mainGoalMenu, 'Goals_Ecommerce', array('module' => 'Goals', 'action' => 'ecommerceReport', 'idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER), true, 1);
             }
             Piwik_AddMenu($mainGoalMenu, 'Goals_AddNewGoal', array('module' => 'Goals', 'action' => 'addNewGoal'));
         } else {
             Piwik_AddMenu($mainGoalMenu, '', array(
                                                   'module' => 'Goals',
                                                   'action' => ($site->isEcommerceEnabled() ? 'ecommerceReport' : 'index'),
-                                                  'idGoal' => ($site->isEcommerceEnabled() ? Piwik_Archive::LABEL_ECOMMERCE_ORDER : null)),
+                                                  'idGoal' => ($site->isEcommerceEnabled() ? Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER : null)),
                 true,
                 25);
 
             if ($site->isEcommerceEnabled()) {
-                Piwik_AddMenu($mainGoalMenu, 'Goals_Ecommerce', array('module' => 'Goals', 'action' => 'ecommerceReport', 'idGoal' => Piwik_Archive::LABEL_ECOMMERCE_ORDER), true, 1);
+                Piwik_AddMenu($mainGoalMenu, 'Goals_Ecommerce', array('module' => 'Goals', 'action' => 'ecommerceReport', 'idGoal' => Piwik::LABEL_ID_GOAL_IS_ECOMMERCE_ORDER), true, 1);
             }
             Piwik_AddMenu($mainGoalMenu, 'Goals_GoalsOverview', array('module' => 'Goals', 'action' => 'index'), true, 2);
             foreach ($goals as $goal) {
@@ -502,18 +474,10 @@ class Piwik_Goals extends Piwik_Plugin
      * Hooks on the Daily archiving.
      * Will process Goal stats overall and for each Goal.
      * Also processes the New VS Returning visitors conversion stats.
-     *
-     * @param Piwik_Event_Notification $notification
-     * @return void
      */
-    function archiveDay($notification)
+    public function archiveDay(Piwik_ArchiveProcessor_Day $archiveProcessor)
     {
-        /**
-         * @var Piwik_ArchiveProcessing_Day
-         */
-        $archiveProcessing = $notification->getNotificationObject();
-
-        $archiving = new Piwik_Goals_Archiver($archiveProcessing);
+        $archiving = new Piwik_Goals_Archiver($archiveProcessor);
         if($archiving->shouldArchive()) {
             $archiving->archiveDay();
         }
@@ -522,15 +486,10 @@ class Piwik_Goals extends Piwik_Plugin
     /**
      * Hooks on Period archiving.
      * Sums up Goal conversions stats, and processes overall conversion rate
-     *
-     * @param Piwik_Event_Notification $notification
-     * @return void
      */
-    function archivePeriod($notification)
+    public function archivePeriod(Piwik_ArchiveProcessor_Period $archiveProcessor)
     {
-        $archiveProcessing = $notification->getNotificationObject();
-
-        $archiving = new Piwik_Goals_Archiver($archiveProcessing);
+        $archiving = new Piwik_Goals_Archiver($archiveProcessor);
         if($archiving->shouldArchive()) {
             $archiving->archivePeriod();
         }

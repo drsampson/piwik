@@ -23,7 +23,6 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
         try {
-            Piwik::createConfigObject();
             Piwik_Config::getInstance()->setTestEnvironment();
 
             $dbConfig = Piwik_Config::getInstance()->database;
@@ -68,7 +67,7 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase
         Piwik_Site::clearCache();
         Piwik_Tracker_Cache::deleteTrackerCache();
         Piwik_Config::getInstance()->clear();
-        Piwik_TablePartitioning::$tablesAlreadyInstalled = null;
+        Piwik_DataAccess_ArchiveTableCreator::clear();
         Zend_Registry::_unsetInstance();
     }
 

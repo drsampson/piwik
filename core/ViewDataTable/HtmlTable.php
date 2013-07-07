@@ -37,8 +37,8 @@ class Piwik_ViewDataTable_HtmlTable extends Piwik_ViewDataTable
     public function __construct()
     {
         parent::__construct();
-        $this->dataTableTemplate = 'CoreHome/templates/datatable.tpl';
-        
+
+        $this->dataTableTemplate = '@CoreHome/_dataTable';
         $this->viewProperties['enable_sort'] = '1';
         $this->viewProperties['disable_row_evolution'] = false;
         $this->viewProperties['disable_row_actions'] = false;

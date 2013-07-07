@@ -32,7 +32,7 @@ class Piwik_UserCountry_API
 
     public function getCountry($idSite, $period, $date, $segment = false)
     {
-        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::VISITS_BY_COUNTRY_RECORD_NAME, $idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::COUNTRY_RECORD_NAME, $idSite, $period, $date, $segment);
 
         // apply filter on the whole datatable in order the inline search to work (searches are done on "beautiful" label)
         $dataTable->filter('ColumnCallbackAddMetadata', array('label', 'code'));
@@ -46,7 +46,7 @@ class Piwik_UserCountry_API
 
     public function getContinent($idSite, $period, $date, $segment = false)
     {
-        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::VISITS_BY_COUNTRY_RECORD_NAME, $idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::COUNTRY_RECORD_NAME, $idSite, $period, $date, $segment);
 
         $getContinent = array('Piwik_Common', 'getContinent');
         $dataTable->filter('GroupBy', array('label', $getContinent));
@@ -68,7 +68,7 @@ class Piwik_UserCountry_API
      */
     public function getRegion($idSite, $period, $date, $segment = false)
     {
-        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::VISITS_BY_REGION_RECORD_NAME, $idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::REGION_RECORD_NAME, $idSite, $period, $date, $segment);
 
         $separator = Piwik_UserCountry_Archiver::LOCATION_SEPARATOR;
         $unk = Piwik_Tracker_Visit::UNKNOWN_CODE;
@@ -110,7 +110,7 @@ class Piwik_UserCountry_API
      */
     public function getCity($idSite, $period, $date, $segment = false)
     {
-        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::VISITS_BY_CITY_RECORD_NAME, $idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Piwik_UserCountry_Archiver::CITY_RECORD_NAME, $idSite, $period, $date, $segment);
 
          $separator = Piwik_UserCountry_Archiver::LOCATION_SEPARATOR;
         $unk = Piwik_Tracker_Visit::UNKNOWN_CODE;
@@ -160,8 +160,10 @@ class Piwik_UserCountry_API
      * of the result of this function.
      *
      * @param string $ip The IP address.
-     * @param string|false $provider The ID of the provider to use or false to use the
+     * @param bool|string $provider The ID of the provider to use or false to use the
      *                               currently configured one.
+     * @throws Exception
+     * @return array|false
      */
     public function getLocationFromIP($ip, $provider = false)
     {
@@ -190,7 +192,7 @@ class Piwik_UserCountry_API
         Piwik::checkUserHasViewAccess($idSite);
         $archive = Piwik_Archive::build($idSite, $period, $date, $segment);
         $dataTable = $archive->getDataTable($name);
-        $dataTable->filter('Sort', array(Piwik_Archive::INDEX_NB_VISITS));
+        $dataTable->filter('Sort', array(Piwik_Metrics::INDEX_NB_VISITS));
         $dataTable->queueFilter('ReplaceColumnNames');
         return $dataTable;
     }

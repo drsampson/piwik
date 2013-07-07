@@ -64,6 +64,7 @@ class Piwik_CoreAdminHome_API
      *
      * @param string $idSites Comma separated list of idSite that have had data imported for the specified dates
      * @param string $dates Comma separated list of dates to invalidate for all these websites
+     * @throws Exception
      * @return array
      */
     public function invalidateArchivedReports($idSites, $dates)
@@ -92,9 +93,6 @@ class Piwik_CoreAdminHome_API
             }
         }
 
-        // Lookup archive tables
-        $tables = Piwik::getTablesInstalled();
-        $archiveTables = Piwik::getTablesArchivesInstalled();
 
         // If using the feature "Delete logs older than N days"...
         $logsAreDeletedBeforeThisDate = Piwik_Config::getInstance()->Deletelogs['delete_logs_schedule_lowest_interval'];
@@ -144,10 +142,10 @@ class Piwik_CoreAdminHome_API
 
         // In each table, invalidate day/week/month/year containing this date
         $sqlIdSites = implode(",", $idSites);
+        $archiveTables = Piwik_DataAccess_ArchiveTableCreator::getTablesArchivesInstalled();
         foreach ($archiveTables as $table) {
             // Extract Y_m from table name
-            $suffix = str_replace(array('archive_numeric_', 'archive_blob_'), '', Piwik_Common::unprefixTable($table));
-
+            $suffix = Piwik_DataAccess_ArchiveTableCreator::getDateFromTableName($table);
             if (!isset($datesByMonth[$suffix])) {
                 continue;
             }

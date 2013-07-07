@@ -38,47 +38,31 @@ class Piwik_LanguagesManager extends Piwik_Plugin
         );
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-
-        $cssFiles[] = "themes/default/styles.css";
+        $cssFiles[] = "plugins/Zeitgeist/stylesheets/styles.css";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
-        $jsFiles[] = "plugins/LanguagesManager/templates/languageSelector.js";
+        $jsFiles[] = "plugins/LanguagesManager/javascripts/languageSelector.js";
     }
 
-    /**
-     * Show styled language selection drop-down list
-     */
-    function showLanguagesSelector()
+    public function showLanguagesSelector()
     {
         Piwik_AddTopMenu('LanguageSelector', $this->getLanguagesSelector(), true, $order = 30, true);
     }
 
     /**
      * Adds the languages drop-down list to topbars other than the main one rendered
-     * in CoreHome/templates/top_bar.tpl. The 'other' topbars are on the Installation
+     * in CoreHome/templates/top_bar.twig. The 'other' topbars are on the Installation
      * and CoreUpdater screens.
-     *
-     * @param Piwik_Event_Notification $notification notification object
      */
-    public function addLanguagesManagerToOtherTopBar($notification)
+    public function addLanguagesManagerToOtherTopBar(&$str)
     {
-        $str =& $notification->getNotificationObject();
         // piwik object & scripts aren't loaded in 'other' topbars
         $str .= "<script type='text/javascript'>if (!window.piwik) window.piwik={};</script>";
-        $str .= "<script type='text/javascript' src='plugins/LanguagesManager/templates/languageSelector.js'></script>";
+        $str .= "<script type='text/javascript' src='plugins/LanguagesManager/javascripts/languageSelector.js'></script>";
         $str .= $this->getLanguagesSelector();
     }
 
@@ -89,20 +73,15 @@ class Piwik_LanguagesManager extends Piwik_Plugin
      */
     private function getLanguagesSelector()
     {
-        // don't use Piwik_View::factory() here
-        $view = new Piwik_View("LanguagesManager/templates/languages.tpl");
+        $view = new Piwik_View("@LanguagesManager/getLanguagesSelector");
         $view->languages = Piwik_LanguagesManager_API::getInstance()->getAvailableLanguageNames();
         $view->currentLanguageCode = self::getLanguageCodeForCurrentUser();
         $view->currentLanguageName = self::getLanguageNameForCurrentUser();
         return $view->render();
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getLanguageToLoad($notification)
+    function getLanguageToLoad(&$language)
     {
-        $language =& $notification->getNotificationObject();
         if (empty($language)) {
             $language = self::getLanguageCodeForCurrentUser();
         }
@@ -111,12 +90,8 @@ class Piwik_LanguagesManager extends Piwik_Plugin
         }
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function deleteUserLanguage($notification)
+    public function deleteUserLanguage($userLogin)
     {
-        $userLogin = $notification->getNotificationObject();
         Piwik_Query('DELETE FROM ' . Piwik_Common::prefixTable('user_language') . ' WHERE login = ?', $userLogin);
     }
 

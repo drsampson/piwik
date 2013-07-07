@@ -36,8 +36,6 @@ class Piwik_CoreHome extends Piwik_Plugin
 
     /**
      * Adds the donate form widget.
-     *
-     * @param Piwik_Event_Notification $notification  notification object
      */
     public function addWidgets()
     {
@@ -45,31 +43,22 @@ class Piwik_CoreHome extends Piwik_Plugin
         Piwik_AddWidget('Example Widgets', 'Installation_Welcome', 'CoreHome', 'getPromoVideo');
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-
         $cssFiles[] = "libs/jquery/themes/base/jquery-ui.css";
-        $cssFiles[] = "themes/default/common.css";
-        $cssFiles[] = "plugins/CoreHome/templates/styles.css";
-        $cssFiles[] = "plugins/CoreHome/templates/menu.css";
-        $cssFiles[] = "plugins/CoreHome/templates/datatable.css";
-        $cssFiles[] = "plugins/CoreHome/templates/cloud.css";
-        $cssFiles[] = "plugins/CoreHome/templates/jquery.ui.autocomplete.css";
-        $cssFiles[] = "plugins/CoreHome/templates/jqplot.css";
-        $cssFiles[] = "plugins/CoreHome/templates/donate.css";
+        $cssFiles[] = "plugins/Zeitgeist/stylesheets/common.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/corehome.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/menu.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/datatable.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/cloud.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/jquery.ui.autocomplete.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/jqplot.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/donate.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/promo.css";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
         $jsFiles[] = "libs/jquery/jquery.js";
         $jsFiles[] = "libs/jquery/jquery-ui.js";
         $jsFiles[] = "libs/jquery/jquery.browser.js";
@@ -77,24 +66,23 @@ class Piwik_CoreHome extends Piwik_Plugin
         $jsFiles[] = "libs/jquery/jquery.scrollTo.js";
         $jsFiles[] = "libs/jquery/jquery.history.js";
         $jsFiles[] = "libs/javascript/sprintf.js";
-        $jsFiles[] = "themes/default/common.js";
-        $jsFiles[] = "themes/default/ajaxHelper.js";
-        $jsFiles[] = "plugins/CoreHome/templates/datatable.js";
-        $jsFiles[] = "plugins/CoreHome/templates/datatable_rowactions.js";
-        $jsFiles[] = "plugins/CoreHome/templates/popover.js";
-        $jsFiles[] = "plugins/CoreHome/templates/broadcast.js";
-        $jsFiles[] = "plugins/CoreHome/templates/menu.js";
-        $jsFiles[] = "plugins/CoreHome/templates/menu_init.js";
-        $jsFiles[] = "plugins/CoreHome/templates/calendar.js";
-        $jsFiles[] = "plugins/CoreHome/templates/date.js";
-        $jsFiles[] = "plugins/CoreHome/templates/autocomplete.js";
-        $jsFiles[] = "plugins/CoreHome/templates/sparkline.js";
-        $jsFiles[] = "plugins/CoreHome/templates/misc.js";
-        $jsFiles[] = "plugins/CoreHome/templates/datatable_manager.js";
-        $jsFiles[] = "plugins/CoreHome/templates/donate.js";
-
-        $jsFiles[] = "plugins/CoreHome/templates/jqplot.js";
+        $jsFiles[] = "plugins/Zeitgeist/javascripts/piwikHelper.js";
+        $jsFiles[] = "plugins/Zeitgeist/javascripts/ajaxHelper.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/datatable.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/datatable_rowactions.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/popover.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/broadcast.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/menu.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/menu_init.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/calendar.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/autocomplete.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/sparkline.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/corehome.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/datatable_manager.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/donate.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/jqplot.js";
         $jsFiles[] = "libs/jqplot/jqplot-custom.min.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/promo.js";
     }
 
 }

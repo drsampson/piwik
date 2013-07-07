@@ -46,7 +46,7 @@ abstract class Piwik_ViewDataTable
      * Template file that will be loaded for this view.
      * Usually set in the Piwik_ViewDataTable_*
      *
-     * @var string eg. 'CoreHome/templates/cloud.tpl'
+     * @var string eg. 'CoreHome/templates/cloud.twig'
      */
     protected $dataTableTemplate = null;
 
@@ -60,7 +60,7 @@ abstract class Piwik_ViewDataTable
     // TODO: external visualizations should be able to customize themselves for different API methods.
 
     /**
-     * Array of properties that are available in the view (from smarty)
+     * Array of properties that are available in the view
      * Used to store UI properties, eg. "show_footer", "show_search", etc.
      *
      * @var array
@@ -187,10 +187,10 @@ abstract class Piwik_ViewDataTable
         $this->viewProperties['filter_sort_column'] = false;
         $this->viewProperties['filter_sort_order'] = false;
         $this->viewProperties['translations'] = array_merge(
-            Piwik_API_API::getInstance()->getDefaultMetrics(),
-            Piwik_API_API::getInstance()->getDefaultProcessedMetrics()
+            Piwik_Metrics::getDefaultMetrics(),
+            Piwik_Metrics::getDefaultProcessedMetrics()
         );
-        
+
         $this->viewProperties['columns_to_display'] = array('label');
         if (isset($this->period) && $this->period == 'day') {
             $this->viewProperties['columns_to_display'][] = 'nb_uniq_visitors';
@@ -418,7 +418,7 @@ abstract class Piwik_ViewDataTable
     private static function getDefaultPropertiesForReport($apiAction)
     {
         $properties = array();
-        Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', $properties, $apiAction);
+        Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', array(&$properties, $apiAction));
         
         return $properties;
     }
@@ -426,10 +426,10 @@ abstract class Piwik_ViewDataTable
     /**
      * Forces the View to use a given template.
      * Usually the template to use is set in the specific ViewDataTable_*
-     * eg. 'CoreHome/templates/cloud.tpl'
+     * eg. 'CoreHome/templates/cloud'
      * But some users may want to force this template to some other value
      *
-     * @param string $tpl eg .'MyPlugin/templates/templateToUse.tpl'
+     * @param string $tpl eg .'@MyPlugin/templateToUse'
      */
     public function setTemplate($tpl)
     {
@@ -846,8 +846,8 @@ abstract class Piwik_ViewDataTable
             // which can be different from the one specified (eg. if the column doesn't exist)
             $javascriptVariablesToSet['filter_sort_column'] = $this->dataTable->getSortedByColumnName();
             // datatable can return "2" but we want to write "nb_visits" in the js
-            if (isset(Piwik_Archive::$mappingFromIdToName[$javascriptVariablesToSet['filter_sort_column']])) {
-                $javascriptVariablesToSet['filter_sort_column'] = Piwik_Archive::$mappingFromIdToName[$javascriptVariablesToSet['filter_sort_column']];
+            if (isset(Piwik_Metrics::$mappingFromIdToName[$javascriptVariablesToSet['filter_sort_column']])) {
+                $javascriptVariablesToSet['filter_sort_column'] = Piwik_Metrics::$mappingFromIdToName[$javascriptVariablesToSet['filter_sort_column']];
             }
         }
 
@@ -1000,7 +1000,7 @@ abstract class Piwik_ViewDataTable
     }
 
     /**
-     * When this method is called, the output will not contain the template datatable_footer.tpl
+     * When this method is called, the output will not include the template datatable_footer
      */
     public function disableFooter()
     {
@@ -1182,7 +1182,7 @@ abstract class Piwik_ViewDataTable
     /**
      * Sets the dataTable column to sort by. This sorting will be applied before applying the (offset, limit) filter.
      *
-     * @param int|string $columnId eg. 'nb_visits' for some tables, or Piwik_Archive::INDEX_NB_VISITS for others
+     * @param int|string $columnId eg. 'nb_visits' for some tables, or Piwik_Metrics::INDEX_NB_VISITS for others
      * @param string $order desc or asc
      */
     public function setSortedColumn($columnId, $order = 'desc')
@@ -1368,7 +1368,7 @@ abstract class Piwik_ViewDataTable
             foreach ($emptyColumns as $emptyColumn) {
                 $key = array_search($emptyColumn, $this->viewProperties['columns_to_display']);
                 if ($key !== false) {
-                    unset($this->viewProperties['columns_to_display']);
+                    unset($this->viewProperties['columns_to_display'][$key]);
                 }
             }
             $this->viewProperties['columns_to_display'] = array_values($this->viewProperties['columns_to_display']);
@@ -1536,7 +1536,7 @@ abstract class Piwik_ViewDataTable
                 $period = new Piwik_Period_Range('range', $strDate, $timezone);
                 $reportDate = $period->getDateStart();
             } // if a multiple period, this function is irrelevant
-            else if (Piwik_Archive::isMultiplePeriod($strDate, $strPeriod)) {
+            else if (Piwik_Period::isMultiplePeriod($strDate, $strPeriod)) {
                 return false;
             } // otherwise, use the date as given
             else {

@@ -27,7 +27,7 @@ class Piwik_UsersManager_Controller extends Piwik_Controller_Admin
     {
         Piwik::checkUserIsNotAnonymous();
 
-        $view = Piwik_View::factory('UsersManager');
+        $view = new Piwik_View('@UsersManager/index');
 
         $IdSitesAdmin = Piwik_SitesManager_API::getInstance()->getSitesIdWithAdminAccess();
         $idSiteSelected = 1;
@@ -120,15 +120,14 @@ class Piwik_UsersManager_Controller extends Piwik_Controller_Admin
     {
         Piwik::checkUserIsNotAnonymous();
 
-        $view = Piwik_View::factory('userSettings');
+        $view = new Piwik_View('@UsersManager/userSettings');
 
         $userLogin = Piwik::getCurrentUserLogin();
         if (Piwik::isUserIsSuperUser()) {
             $view->userAlias = $userLogin;
             $view->userEmail = Piwik::getSuperUserEmail();
-            if (!Piwik_Config::getInstance()->isFileWritable()) {
-                $view->configFileNotWritable = true;
-            }
+            $view->configFileNotWritable = !Piwik_Config::getInstance()->isFileWritable();
+
         } else {
             $user = Piwik_UsersManager_API::getInstance()->getUser($userLogin);
             $view->userAlias = $user['alias'];
@@ -313,7 +312,7 @@ class Piwik_UsersManager_Controller extends Piwik_Controller_Admin
                     'md5Password' => md5($newPassword),
                     'rememberMe'  => false,
                 );
-                Piwik_PostEvent('Login.initSession', $info);
+                Piwik_PostEvent('Login.initSession', array($info));
             }
 
             Piwik_UsersManager_API::getInstance()->setUserPreference($userLogin,

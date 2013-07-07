@@ -12,7 +12,7 @@
 /**
  * Note: This plugin does not hook on Daily and Period Archiving like other Plugins because it reports the
  * very core metrics (visits, actions, visit duration, etc.) which are processed in the Core
- * Piwik_ArchiveProcessing_Day class directly.
+ * Piwik_ArchiveProcessor_Day class directly.
  * These metrics can be used by other Plugins so they need to be processed up front.
  *
  * @package Piwik_VisitsSummary
@@ -39,12 +39,8 @@ class Piwik_VisitsSummary extends Piwik_Plugin
         );
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    public function getReportMetadata($notification)
+    public function getReportMetadata(&$reports)
     {
-        $reports = & $notification->getNotificationObject();
         $reports[] = array(
             'category'         => Piwik_Translate('VisitsSummary_VisitsSummary'),
             'name'             => Piwik_Translate('VisitsSummary_VisitsSummary'),

@@ -209,7 +209,6 @@ class Piwik_Dashboard extends Piwik_Plugin
                     $pos++;
                 }
             }
-
         }
     }
 
@@ -227,37 +226,23 @@ class Piwik_Dashboard extends Piwik_Plugin
         Piwik_AddTopMenu('General_Dashboard', $urlParams, true, 1, $isHTML = false, $tooltip);
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
-        $jsFiles[] = "plugins/Dashboard/templates/widgetMenu.js";
+        $jsFiles[] = "plugins/Dashboard/javascripts/widgetMenu.js";
         $jsFiles[] = "libs/javascript/json2.js";
-        $jsFiles[] = "plugins/Dashboard/templates/dashboardObject.js";
-        $jsFiles[] = "plugins/Dashboard/templates/dashboardWidget.js";
-        $jsFiles[] = "plugins/Dashboard/templates/dashboard.js";
+        $jsFiles[] = "plugins/Dashboard/javascripts/dashboardObject.js";
+        $jsFiles[] = "plugins/Dashboard/javascripts/dashboardWidget.js";
+        $jsFiles[] = "plugins/Dashboard/javascripts/dashboard.js";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-
-        $cssFiles[] = "plugins/CoreHome/templates/datatable.css";
-        $cssFiles[] = "plugins/Dashboard/templates/dashboard.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/datatable.css";
+        $cssFiles[] = "plugins/Dashboard/stylesheets/dashboard.css";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function deleteDashboardLayout($notification)
+    public function deleteDashboardLayout($userLogin)
     {
-        $userLogin = $notification->getNotificationObject();
         Piwik_Query('DELETE FROM ' . Piwik_Common::prefixTable('user_dashboard') . ' WHERE login = ?', array($userLogin));
     }
 

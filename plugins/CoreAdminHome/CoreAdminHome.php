@@ -35,13 +35,8 @@ class Piwik_CoreAdminHome extends Piwik_Plugin
         );
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getScheduledTasks($notification)
+    public function getScheduledTasks(&$tasks)
     {
-        $tasks = & $notification->getNotificationObject();
-
         // general data purge on older archive tables, executed daily
         $purgeArchiveTablesTask = new Piwik_ScheduledTask ($this,
             'purgeOutdatedArchives',
@@ -59,37 +54,27 @@ class Piwik_CoreAdminHome extends Piwik_Plugin
         $tasks[] = $optimizeArchiveTableTask;
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getCssFiles($notification)
+    public function getCssFiles(&$cssFiles)
     {
-        $cssFiles = & $notification->getNotificationObject();
-
         $cssFiles[] = "libs/jquery/themes/base/jquery-ui.css";
-        $cssFiles[] = "plugins/CoreAdminHome/templates/menu.css";
-        $cssFiles[] = "themes/default/common.css";
-        $cssFiles[] = "plugins/CoreAdminHome/templates/styles.css";
-        $cssFiles[] = "plugins/CoreHome/templates/donate.css";
+        $cssFiles[] = "plugins/CoreAdminHome/stylesheets/menu.css";
+        $cssFiles[] = "plugins/Zeitgeist/stylesheets/common.css";
+        $cssFiles[] = "plugins/CoreAdminHome/stylesheets/generalSettings.css";
+        $cssFiles[] = "plugins/CoreHome/stylesheets/donate.css";
     }
 
-    /**
-     * @param Piwik_Event_Notification $notification  notification object
-     */
-    function getJsFiles($notification)
+    public function getJsFiles(&$jsFiles)
     {
-        $jsFiles = & $notification->getNotificationObject();
-
         $jsFiles[] = "libs/jquery/jquery.js";
         $jsFiles[] = "libs/jquery/jquery-ui.js";
         $jsFiles[] = "libs/jquery/jquery.browser.js";
         $jsFiles[] = "libs/javascript/sprintf.js";
-        $jsFiles[] = "themes/default/common.js";
-        $jsFiles[] = "themes/default/ajaxHelper.js";
+        $jsFiles[] = "plugins/Zeitgeist/javascripts/piwikHelper.js";
+        $jsFiles[] = "plugins/Zeitgeist/javascripts/ajaxHelper.js";
         $jsFiles[] = "libs/jquery/jquery.history.js";
-        $jsFiles[] = "plugins/CoreHome/templates/broadcast.js";
-        $jsFiles[] = "plugins/CoreAdminHome/templates/generalSettings.js";
-        $jsFiles[] = "plugins/CoreHome/templates/donate.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/broadcast.js";
+        $jsFiles[] = "plugins/CoreAdminHome/javascripts/generalSettings.js";
+        $jsFiles[] = "plugins/CoreHome/javascripts/donate.js";
     }
 
     function addMenu()
@@ -111,17 +96,17 @@ class Piwik_CoreAdminHome extends Piwik_Plugin
 
     function purgeOutdatedArchives()
     {
-        $archiveTables = Piwik::getTablesArchivesInstalled();
+        $archiveTables = Piwik_DataAccess_ArchiveTableCreator::getTablesArchivesInstalled();
         foreach ($archiveTables as $table) {
-            if (strpos($table, 'numeric') !== false) {
-                Piwik_ArchiveProcessing_Period::doPurgeOutdatedArchives($table);
-            }
+            $date = Piwik_DataAccess_ArchiveTableCreator::getDateFromTableName($table);
+            list($month, $year) = explode('_', $date);
+            Piwik_DataAccess_ArchiveSelector::purgeOutdatedArchives(Piwik_Date::factory("$year-$month-15"));
         }
     }
 
     function optimizeArchiveTable()
     {
-        $archiveTables = Piwik::getTablesArchivesInstalled();
+        $archiveTables = Piwik_DataAccess_ArchiveTableCreator::getTablesArchivesInstalled();
         Piwik_OptimizeTables($archiveTables);
     }
 }

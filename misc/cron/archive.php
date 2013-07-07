@@ -46,12 +46,14 @@ Ideas for improvements:
 	- Core: check that on first day of month, if request last month from UI, 
 	  it returns last temporary monthly report generated, if the last month haven't yet been processed / finalized
  */
+
 define('PIWIK_INCLUDE_PATH', realpath(dirname(__FILE__) . "/../.."));
 define('PIWIK_USER_PATH', PIWIK_INCLUDE_PATH);
 define('PIWIK_ENABLE_DISPATCH', false);
 define('PIWIK_ENABLE_ERROR_HANDLER', false);
 define('PIWIK_ENABLE_SESSION_START', false);
 define('PIWIK_MODE_ARCHIVE', true);
+
 require_once PIWIK_INCLUDE_PATH . "/index.php";
 require_once PIWIK_INCLUDE_PATH . "/core/API/Request.php";
 
@@ -125,8 +127,8 @@ class Archiving
 
         $this->log("Notes");
         // Information about timeout
-        $this->todayArchiveTimeToLive = Piwik_ArchiveProcessing::getTodayArchiveTimeToLive();
-        $this->log("- Reports for today will be processed at most every " . Piwik_ArchiveProcessing::getTodayArchiveTimeToLive()
+        $this->todayArchiveTimeToLive = Piwik_ArchiveProcessor_Rules::getTodayArchiveTimeToLive();
+        $this->log("- Reports for today will be processed at most every " . $this->todayArchiveTimeToLive
             . " seconds. You can change this value in Piwik UI > Settings > General Settings.");
         $this->log("- Reports for the current week/month/year will be refreshed at most every "
             . $this->processPeriodsMaximumEverySeconds . " seconds.");
@@ -165,7 +167,7 @@ class Archiving
 
     private function lastRunKey($idsite, $period)
     {
-        return "lastRunArchive" . $period . "_" . $idsite;
+        return Piwik::getArchiveCronLastRunOptionName($period, $idsite);
     }
 
     /**
@@ -272,11 +274,14 @@ class Archiving
                 continue;
             }
             $visitsToday = end($response);
+            if(empty($visitsToday)) {
+                $visitsToday = 0;
+            }
             $this->requests++;
             $processed++;
 
             // If there is no visit today and we don't need to process this website, we can skip remaining archives
-            if ($visitsToday <= 0
+            if ($visitsToday == 0
                 && !$shouldArchivePeriods
             ) {
                 $this->log("Skipped website id $idsite, no visit today, " . $timerWebsite->__toString());
@@ -414,7 +419,6 @@ class Archiving
         // already processed above for "day"
         if ($period != "day") {
             $ch = $this->getNewCurlHandle($url);
-            $this->addCurlHandleToMulti($mh, $ch);
             $aCurl[$url] = $ch;
             $this->requests++;
         }
@@ -422,7 +426,6 @@ class Archiving
         foreach ($this->getSegmentsForSite($idsite) as $segment) {
             $segmentUrl = $url . '&segment=' . urlencode($segment);
             $ch = $this->getNewCurlHandle($segmentUrl);
-            $this->addCurlHandleToMulti($mh, $ch);
             $aCurl[$segmentUrl] = $ch;
             $this->requests++;
         }
@@ -431,14 +434,13 @@ class Archiving
         $visitsAllDaysInPeriod = false;
 
         if (!empty($aCurl)) {
-            $running = null;
-            do {
-                usleep(10000);
-                curl_multi_exec($mh, $running);
-            } while ($running > 0);
-
+            // FIXME: This code used to execute multiple curl requests asynchronously. This caused
+            // deadlocks since archive tables are locked for the entire archiving process. Moving back
+            // to synchronous requests is a quick fix, but the locking mechanism can be changed to
+            // only lock when getting the new archive ID. When that is done, this code should be changed
+            // back to use asnychronous requests.
             foreach ($aCurl as $url => $ch) {
-                $content = curl_multi_getcontent($ch);
+                $content = curl_exec($ch);
                 $successResponse = $this->checkResponse($content, $url);
                 $success = $successResponse && $success;
                 if ($url == $urlNoSegment
@@ -450,12 +452,8 @@ class Archiving
                     }
                     $visitsAllDaysInPeriod = @array_sum($stats);
                 }
+                curl_close($ch);
             }
-
-            foreach ($aCurl as $ch) {
-                curl_multi_remove_handle($mh, $ch);
-            }
-            curl_multi_close($mh);
         }
 
         $this->log("Archived website id = $idsite, period = $period, "
@@ -667,7 +665,7 @@ class Archiving
         ) // in case --force-timeout-for-periods= without [seconds] specified
         {
             // Ensure the cache for periods is at least as high as cache for today
-            $todayTTL = Piwik_ArchiveProcessing::getTodayArchiveTimeToLive();
+            $todayTTL = Piwik_ArchiveProcessor_Rules::getTodayArchiveTimeToLive();
             if ($forceTimeoutPeriod < $todayTTL) {
                 $this->log("WARNING: Automatically increasing --force-timeout-for-periods from $forceTimeoutPeriod to "
                     . $todayTTL
@@ -678,7 +676,7 @@ class Archiving
         }
 
         // Recommend to disable browser archiving when using this script
-        if (Piwik_ArchiveProcessing::isBrowserTriggerArchivingEnabled()) {
+        if (Piwik_ArchiveProcessor_Rules::isBrowserTriggerEnabled()) {
             $this->log("NOTE: if you execute this script at least once per hour (or more often) in a crontab, you may disable 'Browser trigger archiving' in Piwik UI > Settings > General Settings. ");
             $this->log("      see doc at: http://piwik.org/docs/setup-auto-archiving/");
         }
