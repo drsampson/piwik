@@ -656,9 +656,6 @@ class UserAgentParserEnhanced
             return self::UNKNOWN;
         }
 
-        if ($attr == 'version') {
-            $this->os['version'] = $this->os['version'];
-        }
         return $this->os[$attr];
     }
 

@@ -326,7 +326,7 @@ class Piwik_Tracker
 
     static public $initTrackerMode = false;
 
-    /*
+    /**
      * Used to initialize core Piwik components on a piwik.php request
      * Eg. when cache is missed and we will be calling some APIs to generate cache
      */
@@ -598,7 +598,6 @@ class Piwik_Tracker
         try {
             $pluginsTracker = Piwik_Config::getInstance()->Plugins_Tracker['Plugins_Tracker'];
             if (count($pluginsTracker) > 0) {
-                $pluginsTracker = $pluginsTracker;
                 $pluginsTracker = array_diff($pluginsTracker, self::getPluginsNotToLoad());
                 Piwik_PluginsManager::getInstance()->doNotLoadAlwaysActivatedPlugins();
 
