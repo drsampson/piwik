@@ -379,6 +379,10 @@ abstract class Piwik_ViewDataTable
         
         $this->getUniqueIdViewDataTable();
         $this->viewProperties['self_url'] = $this->getBaseReportUrl($currentControllerName, $currentControllerAction);
+        
+        if (!Piwik_PluginsManager::getInstance()->isPluginActivated('Goals')) {
+            $this->viewProperties['show_goals'] = false;
+        }
     }
     
     /**

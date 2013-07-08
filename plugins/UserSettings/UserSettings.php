@@ -182,13 +182,6 @@ class Piwik_UserSettings extends Piwik_Plugin
         return $hooks;
     }
     
-    /**
-     * Returns the default view properties for an API method. Event handler for
-     * the 'ViewDataTable.getReportDisplayProperties' event.
-     * 
-     * @param array $properties
-     * @param string $apiAction
-     */
     public function getReportDisplayProperties(&$properties, $apiAction)
     {
         $basicUserSettingsProperties = array('show_search'                 => false,
