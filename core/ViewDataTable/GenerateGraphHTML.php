@@ -32,7 +32,7 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
     protected $generateGraphDataParams = array();
     
     /**
-     * TODO
+     * Default constructor.
      */
     public function __construct()
     {
@@ -143,12 +143,12 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
         }
 
         // collect data
-        $variablesDefault = array(); // TODO: should remove this bit of code
+        $jsonParameters = array();
         foreach ($this->getJavaScriptProperties() as $name) {
-            $variablesDefault[$name] = $this->viewProperties[$name];
+            $jsonParameters[$name] = $this->viewProperties[$name];
         }
         $this->parametersToModify['action'] = $this->currentControllerAction;
-        $this->parametersToModify = array_merge($variablesDefault, $this->parametersToModify);
+        $this->parametersToModify = array_merge($jsonParameters, $this->parametersToModify);
         $this->graphData = $this->getGraphData();
 
         // build view

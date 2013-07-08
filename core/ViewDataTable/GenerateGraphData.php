@@ -31,11 +31,6 @@
  */
 abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 {
-    /**
-     * Number of elements to display in the graph.
-     * @var int TODO: docs for 'graph_limit'. need to move & document all other view properties.
-     */
-     
     protected $yAxisUnit = '';
 
     // used for the series picker

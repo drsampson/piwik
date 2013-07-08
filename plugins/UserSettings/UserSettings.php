@@ -171,19 +171,23 @@ class Piwik_UserSettings extends Piwik_Plugin
     function getListHooksRegistered()
     {
         $hooks = array(
-            'ArchiveProcessing_Day.compute'      => 'archiveDay',
-            'ArchiveProcessing_Period.compute'   => 'archivePeriod',
-            'WidgetsList.add'                    => 'addWidgets',
-            'Menu.add'                           => 'addMenu',
-            'API.getReportMetadata'              => 'getReportMetadata',
-            'API.getSegmentsMetadata'            => 'getSegmentsMetadata',
+            'ArchiveProcessing_Day.compute'            => 'archiveDay',
+            'ArchiveProcessing_Period.compute'         => 'archivePeriod',
+            'WidgetsList.add'                          => 'addWidgets',
+            'Menu.add'                                 => 'addMenu',
+            'API.getReportMetadata'                    => 'getReportMetadata',
+            'API.getSegmentsMetadata'                  => 'getSegmentsMetadata',
             'ViewDataTable.getReportDisplayProperties' => 'getReportDisplayProperties',
         );
         return $hooks;
     }
     
     /**
-     * TODO
+     * Returns the default view properties for an API method. Event handler for
+     * the 'ViewDataTable.getReportDisplayProperties' event.
+     * 
+     * @param array $properties
+     * @param string $apiAction
      */
     public function getReportDisplayProperties(&$properties, $apiAction)
     {

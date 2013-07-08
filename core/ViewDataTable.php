@@ -913,7 +913,6 @@ abstract class Piwik_ViewDataTable
      *
      * @param string $nameVar
      * @return mixed
-     * TODO: is this function necessary?
      */
     protected function getDefault($nameVar)
     {
@@ -1208,10 +1207,6 @@ abstract class Piwik_ViewDataTable
      */
     public function setColumnTranslation($columnName, $columnTranslation)
     {
-        if (empty($columnTranslation)) { // TODO: no point in this check? should probably be somewhere else.
-            throw new Exception('Unknown column: ' . $columnName);
-        }
-
         $this->viewProperties['translations'][$columnName] = $columnTranslation;
     }
 
@@ -1586,7 +1581,12 @@ abstract class Piwik_ViewDataTable
     }
     
     /**
-     * TODO
+     * Convenience method that creates and renders a ViewDataTable for a API method.
+     * 
+     * @param string $pluginName The name of the plugin (eg, UserSettings).
+     * @param string $apiAction The name of the API action (eg, getResolution).
+     * @param bool $fetch If true, the result is returned, if false it is echo'd.
+     * @return string|null See $fetch.
      */
     static public function render($pluginName, $apiAction, $fetch = true)
     {
