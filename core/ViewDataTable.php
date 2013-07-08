@@ -57,8 +57,6 @@ abstract class Piwik_ViewDataTable
      */
     protected $mainAlreadyExecuted = false;
 
-    // TODO: external visualizations should be able to customize themselves for different API methods.
-
     /**
      * Array of properties that are available in the view
      * Used to store UI properties, eg. "show_footer", "show_search", etc.
@@ -136,17 +134,9 @@ abstract class Piwik_ViewDataTable
      * @var array
      */
     protected $documentation = false;
-
-    /**
-     * Variable that is used as the DIV ID in the rendered HTML
-     *
-     * @var string
-     * TODO: shouldn't need this & viewProperties['uniqueId']
-     */
-    protected $uniqIdTable = null;
     
     /**
-     * TODO
+     * Default constructor.
      */
     public function __construct()
     {
@@ -179,7 +169,7 @@ abstract class Piwik_ViewDataTable
         $this->viewProperties['disable_generic_filters'] = false;
         $this->viewProperties['disable_queued_filters'] = false;
         $this->viewProperties['keep_summary_row'] = false;
-        $this->viewProperties['filter_excludelowpop'] = false; // TODO: need to test this & below
+        $this->viewProperties['filter_excludelowpop'] = false;
         $this->viewProperties['filter_excludelowpop_value'] = false;
         $this->viewProperties['filter_pattern'] = false;
         $this->viewProperties['filter_column'] = false;
@@ -223,7 +213,6 @@ abstract class Piwik_ViewDataTable
      *
      * @param string $defaultType Any of these: table, cloud, graphPie, graphVerticalBar, graphEvolution, sparkline, generateDataChart*
      * @return Piwik_ViewDataTable
-     * TODO: reverse order of parameters
      */
     static public function factory($defaultType = null, $action = false)
     {
@@ -295,9 +284,11 @@ abstract class Piwik_ViewDataTable
     }
     
     /**
-     * TODO
+     * Returns the list of view properties that can be overridden by query parameters.
+     * 
+     * @return array
      */
-    public function getOverridableProperties() // TODO: should be a property of a Visualization, I think.
+    public function getOverridableProperties()
     {
         return array(
             'show_search',
@@ -321,8 +312,10 @@ abstract class Piwik_ViewDataTable
     }
     
     /**
-     * TODO
-     * TODO: this & above function should be merged
+     * Returns the list of view properties that should be sent with the HTML response
+     * as JSON. These properties can be manipulated via the ViewDataTable UI.
+     * 
+     * @return array
      */
     public function getJavaScriptProperties()
     {
@@ -339,31 +332,6 @@ abstract class Piwik_ViewDataTable
             'filter_sort_column',
             'filter_sort_order',
         );
-    }
-    
-    /**
-     * TODO
-     */
-    private function setViewProperty($name, $value)
-    {
-        if (isset($this->viewProperties[$name])
-            && is_array($this->viewProperties[$name])
-            && is_string($value)
-        ) {
-            $value = Piwik::getArrayFromApiParameter($value);
-        }
-        
-        if ($name == 'translations') {
-            $this->viewProperties[$name] = array_merge($this->viewProperties[$name], $value);
-        } else if ($name == 'relatedReports') {
-            // TODO: shouldn't need this code
-            foreach ($value as $report => $title) {
-                list($module, $action) = explode('.', $report);
-                $this->addRelatedReport($module, $action, $title);
-            }
-        } else {
-            $this->viewProperties[$name] = $value;
-        }
     }
 
     /**
@@ -408,19 +376,9 @@ abstract class Piwik_ViewDataTable
         
         $this->viewProperties['show_footer_icons'] = ($this->idSubtable == false);
         $this->viewProperties['apiMethodToRequestDataTable'] = $apiMethodToRequestDataTable;
-        $this->viewProperties['uniqueId'] = $this->getUniqueIdViewDataTable();
-        $this->viewProperties['self_url'] = $this->getBaseReportUrl($currentControllerName, $currentControllerAction);
-    }
-
-    /**
-     * TODO
-     */
-    private static function getDefaultPropertiesForReport($apiAction)
-    {
-        $properties = array();
-        Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', array(&$properties, $apiAction));
         
-        return $properties;
+        $this->getUniqueIdViewDataTable();
+        $this->viewProperties['self_url'] = $this->getBaseReportUrl($currentControllerName, $currentControllerAction);
     }
     
     /**
@@ -496,6 +454,47 @@ abstract class Piwik_ViewDataTable
     public function setDataTable($dataTable)
     {
         $this->dataTable = $dataTable;
+    }
+
+    /**
+     * Returns the defaut view properties for a report, if any.
+     * 
+     * Plugins can associate callbacks with the ViewDataTable.getReportDisplayProperties
+     * event to set the default properties of reports.
+     * 
+     * @return array
+     */
+    private static function getDefaultPropertiesForReport($apiAction)
+    {
+        $properties = array();
+        Piwik_PostEvent('ViewDataTable.getReportDisplayProperties', array(&$properties, $apiAction));
+        
+        return $properties;
+    }
+    
+    /**
+     * Sets a view property by name. This function handles special view properties
+     * like 'translations' & 'relatedReports' that store arrays.
+     * 
+     * @param string $name
+     * @param mixed $value For array properties, $value can be a comma separated string.
+     */
+    private function setViewProperty($name, $value)
+    {
+        if (isset($this->viewProperties[$name])
+            && is_array($this->viewProperties[$name])
+            && is_string($value)
+        ) {
+            $value = Piwik::getArrayFromApiParameter($value);
+        }
+        
+        if ($name == 'translations') {
+            $this->viewProperties[$name] = array_merge($this->viewProperties[$name], $value);
+        } else if ($name == 'relatedReports') {
+            $this->addRelatedReports($reportTitle = false, $value);
+        } else {
+            $this->viewProperties[$name] = $value;
+        }
     }
 
     /**
@@ -757,7 +756,6 @@ abstract class Piwik_ViewDataTable
     public function setUniqueIdViewDataTable($uniqIdTable)
     {
         $this->viewProperties['uniqueId'] = $uniqIdTable;
-        $this->uniqIdTable = $uniqIdTable;
     }
 
     /**
@@ -766,10 +764,10 @@ abstract class Piwik_ViewDataTable
      */
     public function getUniqueIdViewDataTable()
     {
-        if ($this->uniqIdTable == null) {
-            $this->uniqIdTable = $this->loadUniqueIdViewDataTable();
+        if (empty($this->viewProperties['uniqueId'])) {
+            $this->viewProperties['uniqueId'] = $this->loadUniqueIdViewDataTable();
         }
-        return $this->uniqIdTable;
+        return $this->viewProperties['uniqueId'];
     }
 
     /**
@@ -1475,7 +1473,10 @@ abstract class Piwik_ViewDataTable
      */
     public function addRelatedReports($thisReportTitle, $relatedReports)
     {
-        $this->setReportTitle($thisReportTitle);
+        if (!empty($thisReportTitle)) {
+            $this->setReportTitle($thisReportTitle);
+        }
+        
         foreach ($relatedReports as $report => $title) {
             list($module, $action) = explode('.', $report);
             $this->addRelatedReport($module, $action, $title);
