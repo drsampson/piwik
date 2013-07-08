@@ -153,7 +153,7 @@ class Piwik_VisitTime extends Piwik_Plugin
                 'filter_limit' => 7,
                 'graph_limit' => 7,
                 'enable_sort' => false,
-                'show_all_ticks' => false,
+                'show_all_ticks' => true,
                 'show_footer_message' =>
                     Piwik_Translate('General_ReportGeneratedFrom', self::getDateRangeForFooterMessage()),
                 'translations' => array('label' => Piwik_Translate('VisitTime_DayOfWeek')),
