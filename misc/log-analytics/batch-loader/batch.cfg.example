@@ -1,0 +1,69 @@
+[general]
+# this section sets general configuration
+
+# Path to piwik home on the file system 
+piwikhome: /path/to/piwik
+
+# path to PIWIK MISC directory without trailing slash
+piwikMisc: /path/to/piwik/misc
+
+# URL of PIWIK to use to submit stats. Requires trailing slash
+piwikUrl:http://my.piwik.com/
+
+# path to config.ini.php configuration file
+piwikConfig: "./config/config.ini.php"
+
+# login credentials
+login:
+password: 
+
+# API token authentication
+token:
+
+# directory of piwikprofile.exclude files
+excludeDir: ./exclude
+
+# directory for DB to track what lines to skip (sqlite?)
+batchDbDir: ./db
+
+[default]
+#this section includes default settings
+
+[example profile]
+# each profile section maintains infomration for the particular piwik profile.
+#idsite is for site ide of piwik profile
+idsite:
+# Base URL is for the base url of each request
+baseUrl:
+# list of URL's to exclude
+ExcludeUrls:
+# base directory for logs
+logDir:
+# name of log file(s) in comma separated list
+# replace YYYY with four digit year
+# replace YY with 2 digit year (not implemented yet)
+# replace MM with 2 digit month
+# replace MMM with 3 character month (not implemented yet)
+logFile:
+# piwik regex format for log row formats. Must be enclosed in double quotes to segregate the special characters. instead of value use "None"
+logFormatRegex:None
+# piwik defined names for log file format. instead of empty value enter "None"
+logFormatName:None
+#Reference to file listing URL's to exclude
+excludePathFrom:
+#Name of host for web asset, may not match logfile virtual host listing.
+logHostName:
+
+
+
+
+[profile 1]
+name: 
+idsite: 
+sourceUrl:
+ExcludeUrls:
+logFile: 
+logFormatRegex:None
+logFormatName:None
+excludePathFrom:
+logHostName:
