@@ -1,3 +1,6 @@
 #avoid compiled python scripts
 *.pyc
+#AVOID CUSTOM CONFIGS
 *.cfg
+#avoid temp or locked files (linux)
+*.*~
