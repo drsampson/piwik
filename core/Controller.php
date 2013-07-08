@@ -54,22 +54,6 @@ abstract class Piwik_Controller
     {
         $this->init();
     }
-    
-    /**
-     * TODO
-     */
-    public function __call($action, $args)
-    {
-        $apiClassName = 'Piwik_'.$this->pluginName.'_API';
-        if (!method_exists($apiClassName::getInstance(), $action)) {
-            throw new Exception("Invalid action name '$action' for '{$this->pluginName}' plugin.");
-        }
-        
-        $fetch = reset($args);
-        
-        $view = Piwik_ViewDataTable::factory(null, $this->pluginName.'.'.$action);
-        return $this->renderView($view, $fetch);
-    }
 
     protected function init()
     {

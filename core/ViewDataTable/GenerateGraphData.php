@@ -68,15 +68,11 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
         }
         
         // selectable columns
-        $metricsForDay = array('nb_uniq_visitors');
-        $metricsForAllPeriods = array('nb_visits', 'nb_actions');
-        if (isset($this->period)
-            && $this->period == 'day'
-        ) {
-            $selectableColumns = array_merge($metricsForDay, $metricsForAllPeriods);
-        } else {
-            $selectableColumns = $metricsForAllPeriods;
+        $selectableColumns = array('nb_visits', 'nb_actions');
+        if (Piwik_Common::getRequestVar('period', false) == 'day') {
+            $selectableColumns[] = 'nb_uniq_visitors';
         }
+        
         $this->setSelectableColumns($selectableColumns);
     }
 

@@ -192,7 +192,7 @@ abstract class Piwik_ViewDataTable
         );
 
         $this->viewProperties['columns_to_display'] = array('label');
-        if (isset($this->period) && $this->period == 'day') {
+        if (Piwik_Common::getRequestVar('period', false) == 'day') {
             $this->viewProperties['columns_to_display'][] = 'nb_uniq_visitors';
         } else {
             $this->viewProperties['columns_to_display'][] = 'nb_visits';
@@ -1582,5 +1582,26 @@ abstract class Piwik_ViewDataTable
         // add the related report
         $url = Piwik_Url::getCurrentQueryStringWithParametersModified($params);
         return $url;
+    }
+    
+    /**
+     * TODO
+     */
+    static public function render($pluginName, $apiAction, $fetch = true)
+    {
+        $apiClassName = 'Piwik_'.$pluginName.'_API';
+        if (!method_exists($apiClassName::getInstance(), $apiAction)) {
+            throw new Exception("Invalid action name '$apiAction' for '$pluginName' plugin.");
+        }
+        
+        $view = self::factory(null, $pluginName.'.'.$apiAction);
+        $view->main();
+        $rendered = $view->getView()->render();
+        
+        if ($fetch) {
+            return $rendered;
+        } else {
+            echo $rendered;
+        }
     }
 }
