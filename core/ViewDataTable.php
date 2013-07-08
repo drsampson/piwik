@@ -178,7 +178,7 @@ abstract class Piwik_ViewDataTable
         $this->viewProperties['enable_sort'] = true;
         $this->viewProperties['disable_generic_filters'] = false;
         $this->viewProperties['disable_queued_filters'] = false;
-        $this->viewProperties['keep_summary_row'] = true;
+        $this->viewProperties['keep_summary_row'] = false;
         $this->viewProperties['filter_excludelowpop'] = false; // TODO: need to test this & below
         $this->viewProperties['filter_excludelowpop_value'] = false;
         $this->viewProperties['filter_pattern'] = false;
