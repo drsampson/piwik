@@ -1,6 +1,6 @@
 This Piwik Log Loader Script uses and thus extends import_logs.py with the following features.
 
-Author: Dave Sampson david.sampson@nrcan-rncan.gc.ca
+Author: Dave Sampson github.com/dsampson
 
 
 * Support for log files not rotated daily
@@ -10,7 +10,6 @@ Author: Dave Sampson david.sampson@nrcan-rncan.gc.ca
 
 Setup:
 
-/path/to/piwik/misc/loganalytics/
+/path/to/piwik/misc/log-analytics/
                                 __init__.py
                                 batch/
-                                import/
