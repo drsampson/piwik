@@ -1,4 +1,4 @@
-# Welcome to the piwik Batch_loader.py wiki!
+# Welcome to piwik Batch_loader.py
 
 ## About Piwik Batch Loader
 
