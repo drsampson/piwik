@@ -41,10 +41,10 @@ As of the first release of Batch Loader, the following options are configurable 
 The main guts of this project is located the batch_loader home directory: ./piwik/misc/log-analytics/batch
 
 ## Initial Setup
-7. Edit the file batch.cfg located in Batch_loader home: ./batch/batch.cfg
-8. Each line in the config file batch.cfg is a name:value pair
+7. Copy the file batch.cfg.example to batch.cfg located in Batch_loader home: ./batch/batch.cfg
+8. Edit the file batch.cfg. Each line in the config file batch.cfg is a name:value pair
 9. Copy and paste the section [example profile] and call it [profile 1]
 10. Fill out each name:value pair for your first profile
 11. If listing files/directories to exclude create the file ./piwik/misc/log-analytics/batch/exclude/profile1.exclude (same rules apply for --exclude-path-from command line option)
 NOTE: if no excludes are created, a default empty profile0.exclude file will be used, thus no excludes will be used.
-12.
+12. Create a profile and exclude file for each piwik site id required
