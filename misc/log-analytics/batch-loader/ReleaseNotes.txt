@@ -1,0 +1,32 @@
+Release Notes:
+
+Name: Initial Release
+Version: 0.1
+Release Date: July 9, 2013
+
+Feature List:
+--------------
+* Python script to setup and install basic config file
+* Configuration structure
+	* General
+		* Piwik location
+		* piwik URL
+		* import_logs.py location
+		* username
+		* password
+		* API key
+    * Profiles
+		* log location
+		* piwik profile
+		* URL
+		* logfile format with dates
+		* exclude paths by list
+		* exclude paths by file
+		* log format by name
+		* log format by regex
+		* domain names
+* Sqlite DB 
+	* to track last lines read
+    * track total lines
+    * auto create new entries for new log files
+    * track site ID and profile numbers

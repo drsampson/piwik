@@ -1,38 +1,30 @@
-This is the todo list for log_loader.py
-
+Feature To Do list
+---------------------
+* Can classes be used throughout?
+* How to extend import_logs.py using classes?
 * Configuration structure
 	* General
-		* Piwik location
-		* piwik URL
-		* import_logs.py location
-		* username
-		* password
-		* API key
 		* email settings
 	* profile
-		* log location
-		* piwik profile
-		* URL
-		* logfile format with dates
-		* exclude paths by list
-		* exclude paths by file
 		* include paths by list
 		* include paths by file
-* Sqlite or other small DB 
-	* to track last lines read
-	* to track errors
-	* to track other stats
-	* track load time
-* Log output of script
-	* create readable log files as output or debaug
+* SQLITE DB
+    * After check for DB, check for tables, if missing tables, re-create
+    * Track Errors
+    * Track logs
+    * Other Stats
+    * Remove old log references in SKIP Table
+	* create readable log files as output or debug
+	* remove old log file entries (6 months?)
 * add command line options 
 	* to point to a config file or record
 	* point to a file of config files
+	* select one or more profiles
 * use 1.12 verison of import_logs.py
-* script to setup and install basic config file
 * send reports via e-mail
-* UI
+* User Interface
 	* web based
 	* piwik module
+	* Command Line Interface
 * track script usage using PIWIK?
 
