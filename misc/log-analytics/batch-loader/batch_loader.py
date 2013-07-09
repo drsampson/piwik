@@ -35,14 +35,14 @@ if len(day) == 1:
 
 
 def main():
-    config = getConfig()
-    setupDb(config.get("general","batchDbDir"))
-    updateDb(config)
-    processLogs()
+    config = get_config()
+    setup_db(config.get("general","batchDbDir"))
+    update_db(config)
+    process_logs()
 
-def processLogs():
+def process_logs():
     """This function will control the processing of the log files"""
-    config = getConfig()
+    config = get_config()
     # ./import_logs.py --url=piwik.example.com /path/to/access.log
     cmd = config.get("general", "piwikMisc") + "/log-analytics/import_logs.py"
     urlBase = config.get("general","piwikUrl")
@@ -80,7 +80,7 @@ def processLogs():
             print("Name: " + name)
             print("")
             # some profiles may have multiple log files to process
-            # Grab them one at a time and send to buildCmd() function
+            # Grab them one at a time and send to build_cmd() function
             for log in logFile.split(","):
                 # grad value for lines to skip processing from
                 logFile =(log.strip().replace("%YYYY",year).
@@ -89,21 +89,21 @@ def processLogs():
                 # test to see if logFile exists
                 if os.path.exists(logFile):
                     print("Logfile: " + logFile)
-                    skip = getSkip(s, logFile)
-                    lines = countLines(s, logFile)
+                    skip = get_skip(s, logFile)
+                    lines = count_lines(s, logFile)
                     print("Lines skipped:" + str(skip))
                     print("Lines counted:" + str(lines))
                     print("Lines processed: " + str(lines - skip))
-                    buildCmd(profile, cmd, urlBase, idsite, logFile, 
+                    build_cmd(profile, cmd, urlBase, idsite, logFile, 
                              excludePathFrom, skip, conf)
                 # pass on this log file if it does not exist. 
                 # This allows for a clean fail for missing log files
                 else:
                     print("Skipped log File: " + logFile)
                     
-def buildCmd(profile, cmd, urlBase, idsite, 
+def build_cmd(profile, cmd, urlBase, idsite, 
              logFile, excludePathFrom, skip, conf):
-    config=getConfig()
+    config=get_config()
     """ This function will create a custom URL and submit it to the 
     command line to trigger the log loading script. it will also 
     Build the command line call"""            
@@ -142,12 +142,12 @@ def buildCmd(profile, cmd, urlBase, idsite,
     subprocess.call([cmdln], shell=True)
 
     
-def getSkip(profile, logFile):
+def get_skip(profile, logFile):
     """Get the value of lines to skip"""
     # grab the value of the last line count from the sqlite db
     # Test to see if logfile has more lines than last count
     #get info from config file
-    config = getConfig()
+    config = get_config()
     dbDir = config.get("general","batchDbDir")
     idsite = config.get(profile, "idsite")
     db = dbDir + "/piwik.db"
@@ -166,15 +166,11 @@ def getSkip(profile, logFile):
     # if logfile has less lines than last skip, then assume new log file
     return skip
 
-def callPiwikAPI(cmd):
-    """ This function will create a custom URL and submit it to the command 
-    line to trigger the log loading script """
-    pass
     
-def countLines(profile, logFile):
+def count_lines(profile, logFile):
     """This function will count the number of lines in a log file"""
     #get info from config file
-    config = getConfig()
+    config = get_config()
     dbDir = config.get("general","batchDbDir")
     idsite = config.get(profile, "idsite")
     db = dbDir + "/piwik.db"
@@ -207,9 +203,9 @@ def countLines(profile, logFile):
     #print("count result: " + str(result[0]))
     # check to see if the value in DB equals the current value
     if result[0] == count:
-        print("countlines db update success")
+        print("count lines db update success")
     else:
-        print("countlines db update failed")
+        print("count lines db update failed")
 
     diff = count - lastLine
     #print("new count: " + str(count))
@@ -222,7 +218,7 @@ def countLines(profile, logFile):
     return count
     
     
-def setupDb(dbDir):
+def setup_db(dbDir):
     """This function will setup the sqlite DB used to manage various 
     things like line counts"""
     db = dbDir + "/piwik.db"
@@ -242,13 +238,11 @@ def setupDb(dbDir):
             c.execute(s)
         print("Executed SQL")
     
-def getLastLine():
-	print("Getting Last Line")
 
-def outputLog():
+def output-log():
 	print("Outputting log")
 
-def getOptions():
+def get_options():
 	print("Getting Arguments")
 	parser = OptionParser()
 	parser.add_option('-c','--config', 
@@ -274,7 +268,7 @@ def getOptions():
 def install():
 	print("Installing Scrip")
 
-def updateDb(config):
+def update_db(config):
     """Update the sqlite DB with latest information from config"""
     print("updating DB with new config values")
     dbDir = config.get("general","batchDbDir")
@@ -317,20 +311,20 @@ def updateDb(config):
                         print("Trying to enter logfile in DB")
                         c.execute("INSERT INTO skip ('profile','site_id','log_file') VALUES (?,?,?)", row)
                         conn.commit()
-                        print("countlines db success")
+                        print("count lines db success")
                     except:
-                        print("countlines db failed")
+                        print("count lines db failed")
                         pass
             conn.close()
     
     
     
     
-def updateLogDb():
+def update_log_db():
     """ Update the sqlite log Database with results"""
     pass
 
-def getConfig():
+def get_config():
     """Read the configuration file"""
     config = ConfigParser.ConfigParser()
     config.readfp(open('batch.cfg'))

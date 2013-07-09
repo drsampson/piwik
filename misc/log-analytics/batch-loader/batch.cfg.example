@@ -17,7 +17,7 @@ piwikConfig: "./config/config.ini.php"
 login:
 password: 
 
-# API token authentication
+# API token authentication. This should be the Admin token
 token:
 
 # directory of piwikprofile.exclude files
@@ -58,11 +58,11 @@ logHostName:
 
 
 [profile 1]
-name: 
-idsite: 
+name:
+idsite:
 sourceUrl:
 ExcludeUrls:
-logFile: 
+logFile:
 logFormatRegex:None
 logFormatName:None
 excludePathFrom:
